@@ -1,8 +1,8 @@
-const redis = require('redis');
+const { createClient } = require('redis');
 
 class RedisClient {
   constructor() {
-    this.client = redis.createClient();
+    this.client = createClient();
   }
 
   isAlive() {
@@ -24,7 +24,7 @@ class RedisClient {
   }
 
   async del(key) {
-    await this.client.del(key);
+    await this.del(key);
   }
 }
 
