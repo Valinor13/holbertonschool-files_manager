@@ -2,17 +2,14 @@ const { createClient } = require('redis');
 
 class RedisClient {
   constructor() {
-    this.client = createClient();
+    (async () => {
+      this.client = createClient();
+      this.client.on('error', (err) => console.log(err));
+    });
   }
 
   isAlive() {
-    let returnBool;
-    this.client.on('error', (err) => {
-      returnBool = false;
-      console.log(err);
-    });
-    this.client.on('connect', () => { returnBool = true; });
-    return returnBool;
+    return this.client.on('connect');
   }
 
   async get(key) {
@@ -24,7 +21,7 @@ class RedisClient {
   }
 
   async del(key) {
-    await this.del(key);
+    await this.client.del(key);
   }
 }
 
