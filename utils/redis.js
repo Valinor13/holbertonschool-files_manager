@@ -4,8 +4,10 @@ class RedisClient {
   constructor() {
     (async () => {
       this.client = createClient();
+      await this.client.connect();
       this.client.on('error', (err) => console.log(err));
-    });
+    })
+
   }
 
   isAlive() {
