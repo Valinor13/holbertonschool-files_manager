@@ -29,5 +29,5 @@ class RedisClient {
 }
 
 module.exports = {
-  redisClient: RedisClient(),
+  redisClient: new RedisClient(),
 };
