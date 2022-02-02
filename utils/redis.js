@@ -4,7 +4,6 @@ class RedisClient {
   constructor() {
     (async () => {
       this.client = createClient();
-      await this.client.connect();
       this.client.on('error', (err) => console.log(err));
     })
   }
@@ -14,7 +13,8 @@ class RedisClient {
   }
 
   async get(key) {
-    return this.client.get(key);
+    const value = await this.client.get(key);
+    return value;
   }
 
   async set(key, duration) {
