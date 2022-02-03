@@ -3,6 +3,7 @@ const { MongoClient } = require('mongodb');
 const host = process.env.DB_HOST ? process.env.DB_HOST : 'localhost';
 const port = process.env.DB_PORT ? process.env.DB_PORT : '27017';
 const db = process.env.DB_DATABASE ? process.env.DB_DATABASE : 'files_manager';
+
 const uri = `mongodb://${host}:${port}/${db}`;
 
 class DBClient {
@@ -12,19 +13,19 @@ class DBClient {
   }
 
   isAlive() {
-    this.client.isConnected();
+    return this.client.db.connected;
   }
 
   async nbUsers() {
-    const usersDb = await this.client.db(db);
-    const users = usersDb.collection('users');
-    return users.countDocuments();
+    const db = this.client.db();
+    const collection = db.collection('users');
+    return collection.countDocuments();
   }
 
   async nbFiles() {
-    const filesDb = await this.client.db(db);
-    const files = filesDb.collection('files');
-    return files.countDocuments();
+    const db = this.client.db();
+    const collection = db.collection('files');
+    return collection.countDocuments();
   }
 }
 
