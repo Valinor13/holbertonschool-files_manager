@@ -11,7 +11,7 @@ class RedisClient {
   }
 
   isAlive() {
-    console.log(this.client.connected);
+    console.log(await this.client.connected);
     return true;
   }
 
