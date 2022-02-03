@@ -6,19 +6,19 @@ const db = dbClient.db.collection('users');
 class UsersController {
   static postNew(req, res) {
     (async () => {
-      if (!req.params.email) {
+      if (!req.body.email) {
         res.status(400).send('Missing email');
       }
-      if (!req.params.password) {
+      if (!req.body.password) {
         res.status(400).send('Missing password');
       }
-      if (await db.findOne({ email: req.params.email })) {
+      if (await db.findOne({ email: req.body.email })) {
         res.status(400).send('Already exist');
       } else {
-        const hashPw = sha1(req.params.password);
-        const doc = { email: req.params.email, password: hashPw };
+        const hashPw = sha1(req.body.password);
+        const doc = { email: req.body.email, password: hashPw };
         const result = await db.insertOne(doc);
-        res.status(201).send(JSON.stringify({ id: result.insertedId, email: req.params.email }));
+        res.status(201).send(JSON.stringify({ id: result.insertedId, email: req.body.email }));
       }
       res.end();
     })();
