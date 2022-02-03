@@ -6,10 +6,12 @@ class RedisClient {
     this.client = createClient({ legacyMode: true });
     this.client.on('error', (err) => console.log(err));
     this.getValue = promisify(this.client.get).bind(this.client);
+    this.setExValue = promisify(this.client.setex).bind(this.client);
+    this.delKey = promisify(this.client.del).bind(this.client);
   }
 
   isAlive() {
-    return setTimeout(() => this.client.connected, 3000);
+    return this.client.connected;
   }
 
   async get(key) {
@@ -18,12 +20,11 @@ class RedisClient {
   }
 
   async set(key, value, duration) {
-    await this.client.set(key, value);
-    await this.client.expire(key, duration);
+    await this.setExValue(key, value, duration);
   }
 
   async del(key) {
-    await this.client.del(key);
+    await this.delKey(key);
   }
 }
 
