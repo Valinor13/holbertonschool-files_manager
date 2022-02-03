@@ -3,9 +3,10 @@ import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
-    this.client = createClient();
-    setTimeout(() => {}, 100);
+    this.client = createClient({ legacyMode: true });
+    this.client.connect();
     this.client.on('error', (err) => console.log(err));
+    this.getValue = promisify(this.client.get).bind(this.client);
   }
 
   isAlive() {
@@ -13,8 +14,7 @@ class RedisClient {
   }
 
   async get(key) {
-    const getValue = promisify(this.client.get).bind(this.client);
-    const value = await getValue(key);
+    const value = await this.getValue(key);
     return value;
   }
 
