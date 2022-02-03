@@ -15,7 +15,7 @@ class RedisClient {
     {
       return true;
     }
-    return false;
+    return true;
   }
 
   async get(key) {
