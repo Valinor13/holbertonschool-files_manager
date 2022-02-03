@@ -4,13 +4,12 @@ const { promisify } = require('util');
 class RedisClient {
   constructor() {
     this.client = createClient({ legacyMode: true });
-    this.client.connect();
     this.client.on('error', (err) => console.log(err));
     this.getValue = promisify(this.client.get).bind(this.client);
   }
 
   isAlive() {
-    return true;
+    return setTimeout(() => this.client.connected, 3000);
   }
 
   async get(key) {
