@@ -4,7 +4,7 @@ const dbClient = require('../utils/db');
 const db = dbClient.db.collection('users');
 
 class UsersController {
-  static postUser(req, res) {
+  static postNew(req, res) {
     (async () => {
       if (!req.params.email) {
         res.status(400).send('Missing email');
