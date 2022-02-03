@@ -1,10 +1,9 @@
 const { MongoClient } = require('mongodb');
 
-const uri = `mongodb://${
-  process.env.DB_HOST ? process.env.DB_HOST : 'localhost'
-}:${process.env.DB_PORT ? process.env.DB_PORT : '27017'
-}/${process.env.DB_DATABASE ? process.env.DB_DATABASE : 'files_manager'
-}`;
+const host = process.env.DB_HOST ? process.env.DB_HOST : 'localhost';
+const port = process.env.DB_PORT ? process.env.DB_PORT : '27017';
+const db = process.env.DB_DATABASE ? process.env.DB_DATABASE : 'files_manager';
+const uri = `mongodb://${host}:${port}/${db}`;
 
 class DBClient {
   constructor() {
@@ -17,11 +16,15 @@ class DBClient {
   }
 
   async nbUsers() {
-    return this.client.listCollections('users');
+    const usersDb = this.client.db(db);
+    const users = usersDb.collection('users');
+    return users.countDocuments();
   }
 
   async nbFiles() {
-    return this.client.listCollections('files');
+    const filesDb = this.client.db(db);
+    const files = filesDb.collection('files');
+    return files.countDocuments();
   }
 }
 
