@@ -1,5 +1,4 @@
 const { createClient } = require('redis');
-import e from 'express';
 import { promisify } from 'util';
 
 class RedisClient {
@@ -11,7 +10,6 @@ class RedisClient {
   }
 
   isAlive() {
-    console.log(await this.client.connected);
     return true;
   }
 
