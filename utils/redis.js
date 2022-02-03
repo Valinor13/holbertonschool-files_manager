@@ -1,4 +1,5 @@
 const { createClient } = require('redis');
+import e from 'express';
 import { promisify } from 'util';
 
 class RedisClient {
@@ -10,7 +11,11 @@ class RedisClient {
   }
 
   isAlive() {
-    return this.client.connected();
+    if (this.client.ping() === 'pong')
+    {
+      return true;
+    }
+    return false;
   }
 
   async get(key) {
