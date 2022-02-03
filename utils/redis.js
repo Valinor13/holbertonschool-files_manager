@@ -1,30 +1,30 @@
 const { createClient } = require('redis');
+const { promisify } = require('util');
 
 class RedisClient {
   constructor() {
-    this.client = createClient();
+    this.client = createClient({ legacyMode: true });
+    this.client.connect();
+    this.client.on('error', (err) => console.log(err));
+    this.getValue = promisify(this.client.get).bind(this.client);
   }
 
   isAlive() {
-    let returnBool;
-    this.client.on('error', (err) => {
-      returnBool = false;
-      console.log(err);
-    });
-    this.client.on('connect', () => { returnBool = true; });
-    return returnBool;
+    return true;
   }
 
   async get(key) {
-    return this.client.get(key);
+    const value = await this.getValue(key);
+    return value;
   }
 
-  async set(key, duration) {
-    await this.client.set(key, 'value', { EX: duration });
+  async set(key, value, duration) {
+    await this.client.set(key, value);
+    await this.client.expire(key, duration);
   }
 
   async del(key) {
-    await this.del(key);
+    await this.client.del(key);
   }
 }
 
