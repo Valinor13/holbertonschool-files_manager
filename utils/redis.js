@@ -1,10 +1,10 @@
 const { createClient } = require('redis');
-import { promisify } from 'util';
+const { promisify } = require('util');
 
 class RedisClient {
   constructor() {
     this.client = createClient({ legacyMode: true });
-    promisify(this.client.connect());
+    this.client.connect();
     this.client.on('error', (err) => console.log(err));
     this.getValue = promisify(this.client.get).bind(this.client);
   }
