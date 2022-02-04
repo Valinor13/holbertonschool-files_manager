@@ -1,5 +1,6 @@
 const sha1 = require('sha1');
 const dbClient = require('../utils/db');
+const Redis = require('../utils/redis');
 
 const db = dbClient.db.collection('users');
 
