@@ -52,7 +52,7 @@ class FilesController {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
           const staticPath = path.join(__dirname, dir);
           fs.mkdir(staticPath, { recursive: true }, () => {
-            fs.writeFile(staticPath + token, data, () => {
+            fs.writeFile(token.slice(5), data, () => {
               newFile.localPath = staticPath;
             });
           });
