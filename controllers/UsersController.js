@@ -23,6 +23,22 @@ class UsersController {
       res.end();
     })();
   }
+
+  static getMe(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const buff = Buffer.from(header.slice(9), 'base64');
+      const decodedHeader = buff.toString('utf-8');
+      const token = `auth_${decodedHeader}`;
+      const redi = await Redis.get(token);
+      if (redi) {
+        const user = await db.findOne({ id: redi });
+        res.send(JSON.stringify({ id: redi, email: user.email }));
+      } else {
+        res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
+      }
+    })();
+  }
 }
 
 module.exports = UsersController;
