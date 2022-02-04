@@ -54,10 +54,10 @@ class FilesController {
           fs.mkdir(staticPath, { recursive: true }, () => {
             fs.writeFile(staticPath + token, data, () => {
               newFile.localPath = staticPath;
-              await db.insertOne(newFile);
-              res.status(201).send(JSON.stringify(newFile));
             });
           });
+          await db.insertOne(newFile);
+          res.status(201).send(JSON.stringify(newFile));
         }
       } else {
         res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
