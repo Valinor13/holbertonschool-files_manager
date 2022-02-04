@@ -9,7 +9,6 @@ class AuthController {
   static getConnect(req, res) {
     (async () => {
       const header = req.headers.authorization;
-      console.log(header);
       const buff = Buffer.from(header.slice(6), 'base64');
       const decodedHeader = buff.toString('utf-8');
       const epArray = decodedHeader.split(':');
@@ -18,6 +17,8 @@ class AuthController {
         const newId = v4();
         try {
           const key = `auth_${newId}`;
+          console.log(key);
+          console.log(user.id);
           await Redis.set(key, user.id, 86400000);
         } catch (e) {
           console.error(e);
