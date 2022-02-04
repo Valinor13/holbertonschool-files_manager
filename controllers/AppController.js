@@ -29,10 +29,10 @@ class AppController {
 
   static getConnect(req, res) {
     (async () => {
-      const header = req.headers.authorization.slice(6);
-      const [email, password] = atob(header).split(':');
-      const user = await users.findOne({ email, password: sha1(password) });
       try {
+        const header = req.headers.authorization.slice(6);
+        const [email, password] = atob(header).split(':');
+        const user = await users.findOne({ email, password: sha1(password) });
         const token = uuid();
         redis.set(`auth_${token}`, user._id, 86400);
         return res.status(200).json({
