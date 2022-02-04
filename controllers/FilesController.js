@@ -21,16 +21,16 @@ class FilesController {
         if ((!req.body.type) || (typeList.includes(req.body.type) === false)) {
           res.status(400).send(JSON.stringify({ error: 'Missing type' }));
         }
-        if ((!req.body.data) && (req.body.type != 'folder')) {
+        if ((!req.body.data) && (req.body.type !== 'folder')) {
           res.status(400).send(JSON.stringify({ error: 'Missing data' }));
         } else if ((req.body.data) && ((req.body.type === 'file' || req.body.type === 'image'))) {
-            const buff = Buffer.from(req.body.data, 'base64');
-            decodedData = buff.toString('utf-8');
+          const buff = Buffer.from(req.body.data, 'base64');
+          decodedData = buff.toString('utf-8');
         }
         if (req.body.parentID) {
           const file = await db.findOne({ parentID: req.body.parentID });
           if (file) {
-            if (file.type != 'folder') {
+            if (file.type !== 'folder') {
               res.status(400).send(JSON.stringify({ error: 'Parent is not a folder' }));
             }
           } else {
@@ -38,13 +38,12 @@ class FilesController {
           }
         }
         const newFile = {
-          userId: userId,
+          userId,
           name: req.body.filename,
           type: req.body.type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
           parentId: (req.body.parentID ? req.body.parentID : 0),
-          data: decodedData,
-        }
+        };
         if (req.body.type === 'folder') {
           await db.insertOne(newFile);
           res.status(201).send(JSON.stringify(newFile));
@@ -55,8 +54,8 @@ class FilesController {
               newFile.localPath = dir;
             });
           });
-          await db.insertOne(newFile);
           res.status(201).send(JSON.stringify(newFile));
+          await db.insertOne(newFile);
         }
       } else {
         res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
