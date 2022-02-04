@@ -31,8 +31,8 @@ class UsersController {
       const token = `auth_${header}`;
       const redi = await Redis.get(token);
       if (redi) {
-        console.log(redi);
         const user = await db.findOne({ _id: redi });
+        console.log(user);
         res.send(JSON.stringify({ id: redi, email: user.email }));
       } else {
         res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
