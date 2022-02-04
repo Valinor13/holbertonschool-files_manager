@@ -18,7 +18,6 @@ class AuthController {
         try {
           const key = `auth_${newId}`;
           await Redis.set(key, user._id.toString(), 86400000);
-          console.log(user._id);
         } catch (e) {
           console.error(e);
         }
