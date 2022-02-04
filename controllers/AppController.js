@@ -1,7 +1,5 @@
-import { v4 as uuid } from 'uuid';
-
+const { v4: uuid } = require('uuid');
 const sha1 = require('sha1');
-
 const redis = require('../utils/redis');
 const db = require('../utils/db');
 
@@ -30,18 +28,20 @@ class AppController {
   }
 
   static getConnect(req, res) {
-    const header = req.headers.authorization.slice(6);
-    const [email, password] = atob(header).split(':');
-    const user = users.findOne({ email, password: sha1(password) });
-    try {
-      const token = uuid();
-      redis.set(`auth_${token}`, user.id, 86400);
-      return res.status(200).json({
-        token,
-      });
-    } catch (e) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+    (async () => {
+      const header = req.headers.authorization.slice(6);
+      const [email, password] = atob(header).split(':');
+      const user = await users.findOne({ email, password: sha1(password) });
+      try {
+        const token = uuid();
+        redis.set(`auth_${token}`, user._id, 86400);
+        return res.status(200).json({
+          token,
+        });
+      } catch (e) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+    })();
   }
 
   static getDisconnect(req, res) {
@@ -50,10 +50,11 @@ class AppController {
         const token = req.headers['x-token'];
         await redis.get(`auth_${token}`);
         await redis.del(`auth_${token}`);
-        return res.status(204);
+        res.status(204);
       } catch (e) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        res.status(401).json({ error: 'Unauthorized' });
       }
+      res.end();
     })();
   }
 }
