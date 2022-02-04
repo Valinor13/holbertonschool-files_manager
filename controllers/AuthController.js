@@ -8,7 +8,7 @@ const db = dbClient.db.collection('users');
 class AuthController {
   static getConnect(req, res) {
     (async () => {
-      const header = req.headers.Authorization;
+      const header = req.headers.authorization;
       console.log(header);
       const buff = Buffer.from(header.slice(6), 'base64');
       const decodedHeader = buff.toString('utf-8');
