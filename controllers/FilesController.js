@@ -51,8 +51,9 @@ class FilesController {
         } else {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
           const staticPath = path.join(__dirname, dir);
-          fs.mkdir(staticPath, { recursive: true });
-          fs.writeFile(staticPath + token, data);
+          fs.mkdir(staticPath, { recursive: true }, () => {
+            fs.writeFile(staticPath + token, data);
+          });
           newFile.push({ localPath: staticPath });
           await db.insertOne(newFile);
           res.status(201).send(JSON.stringify(newFile));
