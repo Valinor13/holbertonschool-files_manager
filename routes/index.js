@@ -4,7 +4,6 @@ const UsersController = require('../controllers/UsersController');
 const AuthController = require('../controllers/AuthController');
 const FilesController = require('../controllers/FilesController');
 
-
 const router = express.Router();
 
 router.get('/status', AppController.getStatus);
