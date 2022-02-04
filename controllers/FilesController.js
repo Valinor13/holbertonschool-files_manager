@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const dbClient = require('../utils/db');
+const Redis = require('../utils/redis');
 
 const db = dbClient.db.collection('files');
 
