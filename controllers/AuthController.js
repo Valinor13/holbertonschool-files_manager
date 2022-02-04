@@ -17,7 +17,7 @@ class AuthController {
         const newId = v4();
         try {
           const key = `auth_${newId}`;
-          console.log(user);
+          console.log(user._id);
           await Redis.set(key, user.id, 86400000);
         } catch (e) {
           console.error(e);
