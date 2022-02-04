@@ -31,10 +31,8 @@ class AuthController {
 
   static getDisconnect(req, res) {
     (async () => {
-      const header = req.headers['X-Token'];
-      const buff = Buffer.from(header.slice(9), 'base64');
-      const decodedHeader = buff.toString('utf-8');
-      const token = `auth_${decodedHeader}`;
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
       if (await Redis.get(token)) {
         try {
           await Redis.del(token);
