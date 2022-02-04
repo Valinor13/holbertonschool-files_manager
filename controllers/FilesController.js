@@ -24,7 +24,7 @@ class FilesController {
         if ((!req.body.data) && (req.body.type != 'folder')) {
           res.status(400).send(JSON.stringify({ error: 'Missing data' }));
         } else if ((req.body.data) && ((req.body.type === 'file' || req.body.type === 'image'))) {
-            const buff = Buffer.from(data, 'base64');
+            const buff = Buffer.from(req.body.data, 'base64');
             decodedData = buff.toString('utf-8');
         }
         if (req.body.parentID) {
