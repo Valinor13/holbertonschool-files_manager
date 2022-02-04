@@ -50,7 +50,9 @@ class FilesController {
         } else {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
           fs.mkdir(dir, { recursive: true }, () => {
-            fs.writeFile(`${dir}/${token.slice(5)}`, data, () => {
+            const buff = Buffer.from(data, 'base64');
+            const decodedData = buff.toString('utf-8');
+            fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
               newFile.localPath = dir;
             });
           });
