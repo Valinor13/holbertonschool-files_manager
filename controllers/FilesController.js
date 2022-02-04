@@ -38,12 +38,12 @@ class FilesController {
           }
         }
         const newFile = {
+          userId: userId,
           name: req.body.filename,
           type: req.body.type,
-          parentId: (req.body.parentID ? req.body.parentID : 0),
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
+          parentId: (req.body.parentID ? req.body.parentID : 0),
           data: decodedData,
-          owner: userId
         }
         if (req.body.type === 'folder') {
           await db.insertOne(newFile);
