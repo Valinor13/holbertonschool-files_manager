@@ -36,7 +36,6 @@ class AuthController {
       if (await Redis.get(token)) {
         try {
           await Redis.del(token);
-
           res.sendStatus(204);
         } catch (e) {
           console.error(e);
