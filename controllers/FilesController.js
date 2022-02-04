@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
 const Redis = require('../utils/redis');
@@ -50,10 +49,9 @@ class FilesController {
           res.status(201).send(JSON.stringify(newFile));
         } else {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
-          const staticPath = path.join(__dirname, dir);
-          fs.mkdir(staticPath, { recursive: true }, () => {
-            fs.writeFile(`${staticPath}/${token.slice(5)}`, data, () => {
-              newFile.localPath = staticPath;
+          fs.mkdir(dir, { recursive: true }, () => {
+            fs.writeFile(`${dir}/${token.slice(5)}`, data, () => {
+              newFile.localPath = dir;
             });
           });
           await db.insertOne(newFile);
