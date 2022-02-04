@@ -15,6 +15,7 @@ class FilesController {
       const redi = await Redis.get(token);
       if (redi) {
         const userId = new ObjectID(redi);
+        console.log(userId);
         const user = await db.findOne({ _id: userId });
         console.log(user);
         const typeList = ['folder', 'file', 'image'];
