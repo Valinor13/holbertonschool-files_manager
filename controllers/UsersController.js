@@ -28,10 +28,9 @@ class UsersController {
   static getMe(req, res) {
     (async () => {
       const header = req.headers['x-token'];
-      const buff = Buffer.from(header.slice(9), 'base64');
-      const decodedHeader = buff.toString('utf-8');
-      const token = `auth_${decodedHeader}`;
+      const token = `auth_${header}`;
       const redi = await Redis.get(token);
+      console.log(redi);
       if (redi) {
         const user = await db.findOne({ id: redi });
         res.send(JSON.stringify({ id: redi, email: user.email }));
