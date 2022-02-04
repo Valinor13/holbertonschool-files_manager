@@ -20,7 +20,7 @@ class FilesController {
         if (!req.body.name) {
           res.status(400).send(JSON.stringify({ error: 'Missing name' }));
         }
-        if ((!req.body.type) || (typeList.find(req.body.type)) === undefined) {
+        if ((!req.body.type) || (typeList.find(req.body.type) === undefined)) {
           res.status(400).send(JSON.stringify({ error: 'Missing type' }));
         }
         if ((!req.body.data) && (req.body.type != 'folder')) {
