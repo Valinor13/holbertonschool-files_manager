@@ -54,7 +54,7 @@ class FilesController {
           fs.mkdir(staticPath, { recursive: true }, () => {
             fs.writeFile(staticPath + token, data);
           });
-          newFile.push({ localPath: staticPath });
+          newFile.localPath = staticPath;
           await db.insertOne(newFile);
           res.status(201).send(JSON.stringify(newFile));
         }
