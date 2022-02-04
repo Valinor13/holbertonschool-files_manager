@@ -8,7 +8,7 @@ const db = dbClient.db.collection('files');
 class FilesController {
   static postUpload(req, res) {
     (async () => {
-      let data;
+      let decodedData;
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
       const redi = await Redis.get(token);
@@ -24,7 +24,8 @@ class FilesController {
         if ((!req.body.data) && (req.body.type != 'folder')) {
           res.status(400).send(JSON.stringify({ error: 'Missing data' }));
         } else if ((req.body.data) && ((req.body.type === 'file' || req.body.type === 'image'))) {
-          data = Buffer.from(req.body.data).toString('base64');
+            const buff = Buffer.from(data, 'base64');
+            decodedData = buff.toString('utf-8');
         }
         if (req.body.parentID) {
           const file = await db.findOne({ parentID: req.body.parentID });
@@ -41,7 +42,7 @@ class FilesController {
           type: req.body.type,
           parentId: (req.body.parentID ? req.body.parentID : 0),
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
-          data: data,
+          data: decodedData,
           owner: userId
         }
         if (req.body.type === 'folder') {
@@ -50,8 +51,6 @@ class FilesController {
         } else {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
           fs.mkdir(dir, { recursive: true }, () => {
-            const buff = Buffer.from(data, 'base64');
-            const decodedData = buff.toString('utf-8');
             fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
               newFile.localPath = dir;
             });
