@@ -1,9 +1,9 @@
 const sha1 = require('sha1');
 const { ObjectID } = require('mongodb');
-const db = require('../utils/db');
-const redis = require('../utils/redis');
+const dbClient = require('../utils/db');
+const Redis = require('../utils/redis');
 
-const users = db.db.collection('users');
+const db = dbClient.db.collection('users');
 
 class UsersController {
   static postNew(req, res) {
@@ -14,10 +14,10 @@ class UsersController {
       res.status(400).json({ error: 'Missing password' });
     }
     (async () => {
-      if (await users.findOne({ email: req.body.email })) {
+      if (await db.findOne({ email: req.body.email })) {
         res.status(400).json({ error: 'Already exist' });
       }
-      const user = await users.insertOne({
+      const user = await db.insertOne({
         email: req.body.email,
         password: sha1(req.body.password),
       });
@@ -30,18 +30,17 @@ class UsersController {
 
   static getMe(req, res) {
     (async () => {
-      try {
-        const token = req.headers['x-token'];
-        const redisId = await redis.get(`auth_${token}`);
-        const dbId = new ObjectID(redisId);
-        const user = await users.findOne({ _id: dbId });
-        res.status(200).json({
-          id: user._id,
-          email: user.email,
-        });
-      } catch (e) {
-        res.status(401).json({ error: 'Unauthorized' });
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const redi = await Redis.get(token);
+      if (redi) {
+        const userId = new ObjectID(redi);
+        const user = await db.findOne({ _id: userId });
+        res.send(JSON.stringify({ id: redi, email: user.email }));
+      } else {
+        res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
       }
+      res.end();
     })();
   }
 }

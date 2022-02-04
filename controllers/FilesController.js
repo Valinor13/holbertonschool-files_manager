@@ -1,56 +1,65 @@
 const fs = require('fs');
 const { ObjectID } = require('mongodb');
-const redis = require('../utils/redis');
-const db = require('../utils/db');
+const dbClient = require('../utils/db');
+const Redis = require('../utils/redis');
 
-const files = db.db.collection('files');
+const db = dbClient.db.collection('files');
 
 class FilesController {
   static postUpload(req, res) {
-    const { name, type, data } = req.body;
-    if (!name) res.status(400).json({ error: 'Missing name' });
-    if ((!type) || (type !== 'folder' && type !== 'file' && type !== 'image')) {
-      res.status(400).json({ error: 'Missing type' });
-    }
-    if ((!data) && type !== 'folder') res.status(400).json({ error: 'Missing data' });
-    const parentId = req.body.parentId ? req.body.parentId : 0;
-    const isPublic = req.body.isPublic ? req.body.isPublic : false;
     (async () => {
-      try {
-        const token = req.headers['x-token'];
-        const redisId = await redis.get(`auth_${token}`);
-        const dbId = new ObjectID(redisId);
-        const file = await files.findOne({ _id: dbId });
-        if (file) {
-          if (parentId !== file._id) res.status(400).json({ error: 'Parent not found' });
-          if (parentId === file._id && file.type !== 'folder') res.status(400).json({ error: 'Parent is not a folder' });
-          await files.insertOne({
-            name,
-            type,
-            owner: token,
-          });
-          res.status(201);
+      let decodedData;
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const redi = await Redis.get(token);
+      if (redi) {
+        const userId = new ObjectID(redi);
+        const typeList = ['folder', 'file', 'image'];
+        if (!req.body.name) {
+          res.status(400).send(JSON.stringify({ error: 'Missing name' }));
         }
-        const relPath = process.env.FOLDER_PATH ? process.env.FOLDER_PATH : '/tmp/files_manager';
-        const absPath = relPath;
+        if ((!req.body.type) || (typeList.includes(req.body.type) === false)) {
+          res.status(400).send(JSON.stringify({ error: 'Missing type' }));
+        }
+        if ((!req.body.data) && (req.body.type !== 'folder')) {
+          res.status(400).send(JSON.stringify({ error: 'Missing data' }));
+        } else if ((req.body.data) && ((req.body.type === 'file' || req.body.type === 'image'))) {
+          const buff = Buffer.from(req.body.data, 'base64');
+          decodedData = buff.toString('utf-8');
+        }
+        if (req.body.parentID) {
+          const file = await db.findOne({ parentID: req.body.parentID });
+          if (file) {
+            if (file.type !== 'folder') {
+              res.status(400).send(JSON.stringify({ error: 'Parent is not a folder' }));
+            }
+          } else {
+            res.status(400).send(JSON.stringify({ error: 'Parent not found' }));
+          }
+        }
         const newFile = {
-          userId: dbId,
-          name,
-          type,
-          parentId,
-          isPublic,
+          name: req.body.filename,
+          type: req.body.type,
+          parentId: (req.body.parentID ? req.body.parentID : 0),
+          isPublic: (req.body.isPublic ? req.body.isPublic : false),
+          data: decodedData,
+          owner: userId,
         };
-        fs.mkdir(absPath, { recursive: true }, () => {
-          console.log('Created folder');
-          fs.writeFile(absPath + token, data, () => {
-            console.log('Created file');
-            newFile.localPath = absPath;
+        if (req.body.type === 'folder') {
+          await db.insertOne(newFile);
+          res.status(201).send(JSON.stringify(newFile));
+        } else {
+          const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
+          fs.mkdir(dir, { recursive: true }, () => {
+            fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
+              newFile.localPath = dir;
+            });
           });
-        });
-        await files.insertOne(newFile);
-        res.status(201).send(newFile);
-      } catch (e) {
-        res.status(401).json({ error: 'Unauthorized' });
+          await db.insertOne(newFile);
+          res.status(201).send(JSON.stringify(newFile));
+        }
+      } else {
+        res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
       }
       res.end();
     })();
