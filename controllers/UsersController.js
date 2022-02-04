@@ -15,14 +15,16 @@ class UsersController {
       if (await db.findOne({ email: req.body.email })) {
         return res.status(400).json({ error: 'Already exist' });
       }
-      await db.insertOne({
+      const user = await db.insertOne({
         email: req.body.email,
         password: sha1(req.body.password),
       });
       return res.status(200).json({
-        message: 'User created',
+        id: user.insertedId,
+        email: req.body.email,
       });
     })();
+    return null;
   }
 }
 
