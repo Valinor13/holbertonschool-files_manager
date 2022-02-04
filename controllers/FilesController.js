@@ -49,10 +49,10 @@ class FilesController {
           await db.insertOne(newFile);
           res.status(201).send(JSON.stringify(newFile));
         } else {
-          const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
+          const dir = process.env.FOLDER_PATH || '../tmp/files_manager';
           const staticPath = path.join(__dirname, dir);
           fs.mkdir(staticPath, { recursive: true }, () => {
-            fs.writeFile(token.slice(5), data, () => {
+            fs.writeFile(`${staticPath}/${token.slice(5)}`, data, () => {
               newFile.localPath = staticPath;
             });
           });
