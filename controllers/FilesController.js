@@ -39,7 +39,7 @@ class FilesController {
         }
         const newFile = {
           userId,
-          name: req.body.filename,
+          name: req.body.name,
           type: req.body.type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
           parentId: (req.body.parentID ? req.body.parentID : 0),
