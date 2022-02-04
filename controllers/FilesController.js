@@ -15,9 +15,6 @@ class FilesController {
       const redi = await Redis.get(token);
       if (redi) {
         const userId = new ObjectID(redi);
-        console.log(userId);
-        const user = await db.findOne({ _id: userId });
-        console.log(user);
         const typeList = ['folder', 'file', 'image'];
         if (!req.body.name) {
           res.status(400).send(JSON.stringify({ error: 'Missing name' }));
@@ -46,7 +43,7 @@ class FilesController {
           parentId: (req.body.parentID ? req.body.parentID : 0),
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
           data: data,
-          owner: user._id
+          owner: userId
         }
         if (req.body.type === 'folder') {
           await db.insertOne(newFile);
