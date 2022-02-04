@@ -7,22 +7,24 @@ const users = db.db.collection('users');
 
 class UsersController {
   static postNew(req, res) {
+    if (!req.body.email) {
+      res.status(400).json({ error: 'Missing email' });
+    }
+    if (!req.body.password) {
+      res.status(400).json({ error: 'Missing password' });
+    }
     (async () => {
-      if (!req.body.email) {
-        res.status(400).send(JSON.stringify({ error: 'Missing email' }));
+      if (await users.findOne({ email: req.body.email })) {
+        res.status(400).json({ error: 'Already exist' });
       }
-      if (!req.body.password) {
-        res.status(400).send(JSON.stringify({ error: 'Missing password' }));
-      }
-      if (await db.findOne({ email: req.body.email })) {
-        res.status(400).send(JSON.stringify({ error: 'Already exist' }));
-      } else {
-        const hashPw = sha1(req.body.password);
-        const doc = { email: req.body.email, password: hashPw };
-        const result = await db.insertOne(doc);
-        res.status(201).send(JSON.stringify({ id: result.insertedId, email: req.body.email }));
-      }
-      res.end();
+      const user = await users.insertOne({
+        email: req.body.email,
+        password: sha1(req.body.password),
+      });
+      res.status(200).json({
+        id: user.insertedId,
+        email: req.body.email,
+      });
     })();
   }
 
