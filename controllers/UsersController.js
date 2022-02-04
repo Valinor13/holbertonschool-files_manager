@@ -26,6 +26,10 @@ class UsersController {
     })();
     return null;
   }
+
+  static getMe(req, res) {
+    console.log(req.headers);
+  }
 }
 
 module.exports = UsersController;
