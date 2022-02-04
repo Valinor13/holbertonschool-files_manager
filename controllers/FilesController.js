@@ -43,7 +43,6 @@ class FilesController {
           type: req.body.type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
           parentId: (req.body.parentID ? req.body.parentID : 0),
-          data: decodedData,
         }
         if (req.body.type === 'folder') {
           await db.insertOne(newFile);
@@ -55,8 +54,8 @@ class FilesController {
               newFile.localPath = dir;
             });
           });
-          await db.insertOne(newFile);
           res.status(201).send(JSON.stringify(newFile));
+          await db.insertOne(newFile);
         }
       } else {
         res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
