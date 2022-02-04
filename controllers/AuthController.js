@@ -9,8 +9,8 @@ class AuthController {
   static getConnect(req, res) {
     (async () => {
       try {
-        const header = req.headers.authorization.slice(6);
-        const [email, password] = atob(header).split(':');
+        const header = req.headers.authorization;
+        const [email, password] = Buffer.from(header.slice(6), 'base64').toString().split(':');
         const user = await users.findOne({ email, password: sha1(password) });
         const token = uuid();
         redis.set(`auth_${token}`, user._id, 86400);
