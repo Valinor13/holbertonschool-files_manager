@@ -9,6 +9,7 @@ class AuthController {
   static getConnect(req, res) {
     (async () => {
       const header = req.headers.Authorization;
+      console.log(header);
       const buff = Buffer.from(header.slice(6), 'base64');
       const decodedHeader = buff.toString('utf-8');
       const epArray = decodedHeader.split(':');
