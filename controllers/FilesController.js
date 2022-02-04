@@ -16,6 +16,7 @@ class FilesController {
       if (redi) {
         const userId = new ObjectID(redi);
         const user = await db.findOne({ _id: userId });
+        console.log(user);
         const typeList = ['folder', 'file', 'image'];
         if (!req.body.name) {
           res.status(400).send(JSON.stringify({ error: 'Missing name' }));
