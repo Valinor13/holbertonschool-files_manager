@@ -1,25 +1,31 @@
-const { v4: uuid } = require('uuid');
 const sha1 = require('sha1');
-const redis = require('../utils/redis');
-const db = require('../utils/db');
+const { v4 } = require('uuid');
+const Redis = require('../utils/redis');
+const dbClient = require('../utils/db');
 
-const users = db.db.collection('users');
+const db = dbClient.db.collection('users');
 
 class AuthController {
   static getConnect(req, res) {
     (async () => {
-      try {
-        const header = req.headers.authorization;
-        const [email, password] = Buffer.from(header.slice(6), 'base64').toString().split(':');
-        const user = await users.findOne({ email, password: sha1(password) });
-        const token = uuid();
-        redis.set(`auth_${token}`, user._id, 86400);
-        return res.status(200).json({
-          token,
-        });
-      } catch (e) {
-        return res.status(401).json({ error: 'Unauthorized' });
+      const header = req.headers.authorization;
+      const buff = Buffer.from(header.slice(6), 'base64');
+      const decodedHeader = buff.toString('utf-8');
+      const epArray = decodedHeader.split(':');
+      const user = await db.findOne({ email: epArray[0], password: sha1(epArray[1]) });
+      if (user) {
+        const newId = v4();
+        try {
+          const key = `auth_${newId}`;
+          await Redis.set(key, user._id.toString(), 86400000);
+        } catch (e) {
+          console.error(e);
+        }
+        res.status(200).send(JSON.stringify({ token: newId }));
+      } else {
+        res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
       }
+      res.end();
     })();
   }
 
@@ -27,9 +33,9 @@ class AuthController {
     (async () => {
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
-      if (await redis.get(token)) {
+      if (await Redis.get(token)) {
         try {
-          await redis.del(token);
+          await Redis.del(token);
           res.sendStatus(204);
         } catch (e) {
           console.error(e);
