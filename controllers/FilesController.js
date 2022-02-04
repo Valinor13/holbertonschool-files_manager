@@ -52,11 +52,12 @@ class FilesController {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
           const staticPath = path.join(__dirname, dir);
           fs.mkdir(staticPath, { recursive: true }, () => {
-            fs.writeFile(staticPath + token, data);
+            fs.writeFile(staticPath + token, data, () => {
+              newFile.localPath = staticPath;
+              await db.insertOne(newFile);
+              res.status(201).send(JSON.stringify(newFile));
+            });
           });
-          newFile.localPath = staticPath;
-          await db.insertOne(newFile);
-          res.status(201).send(JSON.stringify(newFile));
         }
       } else {
         res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
