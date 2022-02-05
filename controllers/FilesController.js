@@ -57,8 +57,8 @@ class FilesController {
             newFile.localPath = dir;
           });
         });
-        res.status(201).json(newFile);
         await files.insertOne(newFile);
+        res.status(201).json(newFile);
       } else {
         return res.status(401).json({ error: 'Unauthorized' });
       }
