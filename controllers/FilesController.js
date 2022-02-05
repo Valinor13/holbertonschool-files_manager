@@ -93,8 +93,10 @@ class FilesController {
         const page = req.query.page ? parseInt(req.query.page, 10) : 0;
         const ps = 20;
         const aggregate = [];
-        const cP = await files.find({ userId, parentId }).skip(page).limit(ps).toArray((e, re) => {
-          aggregate.push(re);
+        const cP = await files.find({
+          userId, parentId,
+        }).skip(page * ps).limit(ps).toArray((err, results) => {
+          aggregate.push(results);
         });
         return res.status(200).send(cP);
       }
