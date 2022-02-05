@@ -78,10 +78,9 @@ class FilesController {
       const token = `auth_${header}`;
       const redi = await Redis.get(token);
       if (redi) {
-        // const userId = new ObjectID(redi);
+        const userId = new ObjectID(redi);
         const _id = new ObjectID(req.params.id);
-        const file = files.findOne({ _id });
-        console.log(file);
+        const file = await files.findOne({ _id, userId });
         if (file) {
           res.status(200).json(file);
           return res.end();
