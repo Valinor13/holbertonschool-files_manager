@@ -30,11 +30,7 @@ class FilesController {
         }
         if (req.body.parentId) {
           const file = await files.findOne({ _id: req.body.parentId });
-          try {
-            if (file._id === redi) {
-              res.status(400).json({ error: 'Parent not found' });
-            }
-          } catch (e) {
+          if ((!file) || file._id === redi) {
             res.status(400).json({ error: 'Parent not found' });
           }
           if (file._id === req.body.parentId) {
