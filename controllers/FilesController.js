@@ -40,7 +40,6 @@ class FilesController {
             return res.status(400).json({ error: 'Parent is not a folder' });
           }
         }
-        console.log('passed error checks');
         const newFile = {
           userId,
           name,
