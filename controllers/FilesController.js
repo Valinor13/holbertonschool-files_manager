@@ -103,7 +103,7 @@ class FilesController {
         {
           $facet: {
             data: [
-              { $skip: pageNum },
+              { $skip: pageNum * 20 },
               { $limit: 20 },
             ],
           },
