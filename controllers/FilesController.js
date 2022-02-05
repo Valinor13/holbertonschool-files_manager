@@ -101,12 +101,10 @@ class FilesController {
       // const filesList = await files.aggregate([
       //   { $match: { userId, parentId } },
       //   {
-      //     $facet: {
-      //       data: [
-      //         { $skip: pageNum * 20 },
-      //         { $limit: 20 },
-      //       ],
-      //     },
+      //     [
+      //       { $skip: pageNum * 20 },
+      //       { $limit: 20 }
+      //     ]
       //   },
       // ]).toArray();
       if (filesList) {
