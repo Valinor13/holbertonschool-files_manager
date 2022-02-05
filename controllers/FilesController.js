@@ -33,10 +33,8 @@ class FilesController {
           if ((file === null) || (file._id === redi)) {
             res.status(400).json({ error: 'Parent not found' });
           }
-          if (file._id === req.body.parentId) {
-            if (file.type !== 'folder') {
-              res.status(400).json({ error: 'Parent is not a folder' });
-            }
+          if (file.type !== 'folder') {
+            res.status(400).json({ error: 'Parent is not a folder' });
           }
         }
         const newFile = {
