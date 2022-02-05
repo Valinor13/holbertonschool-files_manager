@@ -89,29 +89,40 @@ class FilesController {
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
       const user = await Redis.get(token);
-      if (user) {
-        const userId = new ObjectID(user);
-        // parentId options
-        const parent = (req.query.parentId ? req.query.parentId : 0);
-        if (parent) {
-          const parentId = new ObjectID(parent);
-          const filesList = await files.find({ userId, parentId }).toArray();
-          return res.status(200).json(filesList);
-        }
-        // pages options
-        const pages = req.query.page;
-        if ((pages) && (pages < 20)) {
-          const filesList = await files.find({ userId });
-          return res.status(200).json(filesList);
-        }
-        // All files
-        const fileArray = await files.find({ userId }).toArray();
-        if (fileArray) {
-          return res.status(200).json(fileArray);
-        }
-        return res.status(400).json({ error: 'Not found' });
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' });
       }
-      return res.status(401).json({ error: 'Unauthorized' });
+      const userId = new ObjectID(user);
+      // parentId options
+      const parent = (req.query.parentId ? req.query.parentId : 0);
+      if (parent) {
+        const parentId = new ObjectID(parent);
+        const filesList = await files.find({ userId, parentId }).toArray();
+        return res.status(200).json(filesList);
+      }
+      // pagination options
+      const { page } = req.query;
+      if ((page) && (page < 20)) {
+        // const filesList = await files.find({ userId }).skip(page).limit(20).toArray();
+        const filesList = await files.aggregate([
+          { $match: { userId } },
+          {
+            $facet: {
+              data: [
+                { $skip: page },
+                { $limit: 20 },
+              ],
+            },
+          },
+        ]).toArray();
+        return res.status(200).json(filesList);
+      }
+      // All files
+      const filesList = await files.find({ userId }).toArray();
+      if (filesList) {
+        return res.status(200).json(filesList);
+      }
+      return res.status(404).json({ error: 'Not found' });
     })();
   }
 }
