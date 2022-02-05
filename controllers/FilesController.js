@@ -18,16 +18,13 @@ class FilesController {
         const userId = new ObjectID(redi);
         const typeList = ['folder', 'file', 'image'];
         if (!name) {
-          res.status(400).json({ error: 'Missing name' });
-          return res.end();
+          return res.status(400).json({ error: 'Missing name' });
         }
         if ((!type) || (typeList.includes(type) === false)) {
-          res.status(400).json({ error: 'Missing type' });
-          return res.end();
+          return res.status(400).json({ error: 'Missing type' });
         }
         if ((!data) && (type !== 'folder')) {
-          res.status(400).json({ error: 'Missing data' });
-          return res.end();
+          return res.status(400).json({ error: 'Missing data' });
         }
         if ((data) && ((type === 'file' || type === 'image'))) {
           const buff = Buffer.from(data, 'base64');
@@ -37,12 +34,10 @@ class FilesController {
           pId = new ObjectID(req.body.parentId);
           const file = await files.findOne({ _id: pId });
           if ((!file) || (file._id === redi)) {
-            res.status(400).json({ error: 'Parent not found' });
-            return res.end();
+            return res.status(400).json({ error: 'Parent not found' });
           }
           if (file.type !== 'folder') {
-            res.status(400).json({ error: 'Parent is not a folder' });
-            return res.end();
+            return res.status(400).json({ error: 'Parent is not a folder' });
           }
         }
         const newFile = {
@@ -54,8 +49,7 @@ class FilesController {
         };
         if (type === 'folder') {
           await files.insertOne(newFile);
-          res.status(201).json(newFile);
-          return res.end();
+          return res.status(201).json(newFile);
         }
         const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
         fs.mkdir(dir, { recursive: true }, () => {
@@ -64,11 +58,9 @@ class FilesController {
           });
         });
         await files.insertOne(newFile);
-        res.status(201).json(newFile);
-        return res.end();
+        return res.status(201).json(newFile);
       }
-      res.status(401).json({ error: 'Unauthorized' });
-      return res.end();
+      return res.status(401).json({ error: 'Unauthorized' });
     })();
   }
 
@@ -82,14 +74,28 @@ class FilesController {
         const _id = new ObjectID(req.params.id);
         const file = await files.findOne({ _id, userId });
         if (file) {
-          res.status(200).json(file);
-          return res.end();
+          return res.status(200).json(file);
         }
-        res.status(404).json({ error: 'Not found' });
-        return res.end();
+        return res.status(404).json({ error: 'Not found' });
       }
-      res.status(401).json({ error: 'Unauthorized' });
-      return res.end();
+      return res.status(401).json({ error: 'Unauthorized' });
+    })();
+  }
+
+  static getIndex(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const redi = await Redis.get(token);
+      if (redi) {
+        const userId = new ObjectID(redi);
+        const parentId = req.query.parentId ? new ObjectID(req.query.parentId) : 0;
+        const page = req.query.page || 0;
+        const pageSize = 20;
+        const cP = await files.find({ userId, parentId }).skip(page).limit(pageSize).toArray();
+        return res.status(200).send(cP);
+      }
+      return res.status(401).json({ error: 'Unauthorized' });
     })();
   }
 }

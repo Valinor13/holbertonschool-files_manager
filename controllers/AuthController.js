@@ -13,19 +13,16 @@ class AuthController {
       const decodedHeader = buff.toString('utf-8');
       const [email, password] = decodedHeader.split(':');
       if (!password) {
-        res.status(401).json({ error: 'Unauthorized' });
-        return res.end();
+        return res.status(401).json({ error: 'Unauthorized' });
       }
       const user = await users.findOne({ email, password: sha1(password) });
       if (user) {
         const newId = uuid();
         const key = `auth_${newId}`;
         await Redis.set(key, user._id.toString(), 86400);
-        res.status(200).json({ token: newId });
-        return res.end();
+        return res.status(200).json({ token: newId });
       }
-      res.status(401).json({ error: 'Unauthorized' });
-      return res.end();
+      return res.status(401).json({ error: 'Unauthorized' });
     })();
   }
 
@@ -35,11 +32,9 @@ class AuthController {
       const token = `auth_${header}`;
       if (await Redis.get(token)) {
         await Redis.del(token);
-        res.sendStatus(204);
-        return res.end();
+        return res.sendStatus(204);
       }
-      res.status(401).json({ error: 'Unauthorized' });
-      return res.end();
+      return res.status(401).json({ error: 'Unauthorized' });
     })();
   }
 }
