@@ -65,6 +65,55 @@ class FilesController {
       return res.end();
     })();
   }
+
+  static getShow(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const user = await Redis.get(token);
+      if (user) {
+        const userId = new ObjectID(user);
+        const fileId = new ObjectID(req.params.id);
+        const file = await files.findOne({ _id: fileId, userId });
+        if (!file) {
+          return res.status(404).json({ error: 'Not found' });
+        }
+        return res.status(200).json(file);
+      }
+      return res.status(401).json({ error: 'Unauthorized' });
+    })();
+  }
+
+  static getIndex(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const userId = await Redis.get(token);
+      if (userId) {
+        const id = new ObjectID(userId);
+        // parentId options
+        const parentId = (req.query.parentId ? req.query.parentId : 0);
+        if (parentId) {
+          const parent = new ObjectID(parentId);
+          const filesList = await files.find({ userId: id, parentId: parent }).toArray();
+          return res.status(200).json(filesList);
+        }
+        // pages options
+        const pages = req.query.page;
+        if ((pages) && (pages < 20)) {
+          const filesList = await files.find({ userId: id })
+          return res.status(200).json(filesList);
+        }
+        // All files
+        const fileArray = await files.find({ userId: id }).toArray();
+        if (fileArray) {
+          return res.status(200).json(filesList);
+        }
+        return res.status(400).json({ error: 'Not found' });
+      }
+      return res.status(401).json({ error: 'Unauthorized' });
+    })();
+  }
 }
 
 module.exports = FilesController;
