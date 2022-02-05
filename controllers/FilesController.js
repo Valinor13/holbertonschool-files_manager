@@ -94,7 +94,7 @@ class FilesController {
         const ps = 20;
         const cP = await files.find({
           userId, parentId,
-        }).skip(page * ps).limit(ps).toArray();
+        }).skip(page * ps).limit(ps);
         console.log(cP);
         return res.status(200).send(cP);
       }
