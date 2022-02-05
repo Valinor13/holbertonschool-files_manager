@@ -48,18 +48,17 @@ class FilesController {
           parentId: (req.body.parentId ? pId : 0),
         };
         if (type === 'folder') {
-          res.status(201).json(newFile);
           await files.insertOne(newFile);
-        } else {
-          const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
-          fs.mkdir(dir, { recursive: true }, () => {
-            fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
-              newFile.localPath = dir;
-            });
-          });
-          res.status(201).json(newFile);
-          await files.insertOne(newFile);
+          return res.status(201).json(newFile);
         }
+        const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
+        fs.mkdir(dir, { recursive: true }, () => {
+          fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
+            newFile.localPath = dir;
+          });
+        });
+        await files.insertOne(newFile);
+        res.status(201).json(newFile);
       } else {
         return res.status(401).json({ error: 'Unauthorized' });
       }
