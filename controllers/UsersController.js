@@ -10,20 +10,18 @@ class UsersController {
     (async () => {
       const { email, password } = req.body;
       if (!email) {
-        res.status(400).json({ error: 'Missing email' });
+        return res.status(400).json({ error: 'Missing email' });
       }
       if (!password) {
-        res.status(400).json({ error: 'Missing password' });
+        return res.status(400).json({ error: 'Missing password' });
       }
       if (await users.findOne({ email })) {
-        res.status(400).json({ error: 'Already exist' });
-      } else {
-        const hashPw = sha1(password);
-        const doc = { email, password: hashPw };
-        const result = await users.insertOne(doc);
-        res.status(201).json({ id: result.insertedId, email });
+        return res.status(400).json({ error: 'Already exist' });
       }
-      res.end();
+      const hashPw = sha1(password);
+      const doc = { email, password: hashPw };
+      const result = await users.insertOne(doc);
+      return res.status(201).json({ id: result.insertedId, email });
     })();
   }
 
@@ -35,11 +33,9 @@ class UsersController {
       if (redi) {
         const userId = new ObjectID(redi);
         const user = await users.findOne({ _id: userId });
-        res.json({ id: redi, email: user.email });
-      } else {
-        res.status(401).json({ error: 'Unauthorized' });
+        return res.json({ id: redi, email: user.email });
       }
-      res.end();
+      return res.status(401).json({ error: 'Unauthorized' });
     })();
   }
 }
