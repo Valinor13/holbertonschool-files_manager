@@ -11,6 +11,7 @@ class AuthController {
       const header = req.headers.authorization;
       const buff = Buffer.from(header.slice(6), 'base64');
       const decodedHeader = buff.toString('utf-8');
+<<<<<<< Updated upstream
       const epArray = decodedHeader.split(':');
       const user = await db.findOne({ email: epArray[0], password: sha1(epArray[1]) });
       if (user) {
@@ -24,6 +25,25 @@ class AuthController {
         res.status(200).send(JSON.stringify({ token: newId }));
       } else {
         res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
+=======
+      const [email, password] = decodedHeader.split(':');
+      if (!password) {
+        res.status(401).json({ error: 'Unauthorized' });
+      } else {
+        const user = await users.findOne({ email, password: sha1(password) });
+        if (user) {
+          const newId = uuid();
+          try {
+            const key = `auth_${newId}`;
+            await Redis.set(key, user._id.toString(), 86400);
+          } catch (e) {
+            console.error(e);
+          }
+          res.status(200).json({ token: newId });
+        } else {
+          res.status(401).json({ error: 'Unauthorized' });
+        }
+>>>>>>> Stashed changes
       }
       res.end();
     })();
