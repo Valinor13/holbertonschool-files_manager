@@ -97,7 +97,8 @@ class FilesController {
       const parentId = new ObjectID(parent);
       const { page } = req.query ? req.query : 0;
       const pageNum = parseInt(page, 10);
-      // const filesList = await files.find({ userId, parentId }).skip(pageNum).limit(20).toArray();
+      // const filesList = await files.find({ userId, parentId
+      // }).skip(pageNum * 20).limit(20).toArray();
       const filesList = await files.aggregate([
         { $match: { userId, parentId } },
         {
