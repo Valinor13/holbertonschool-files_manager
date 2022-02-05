@@ -93,33 +93,22 @@ class FilesController {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const userId = new ObjectID(user);
-      // parentId options
       const parent = (req.query.parentId ? req.query.parentId : 0);
-      if (parent) {
-        const parentId = new ObjectID(parent);
-        const filesList = await files.find({ userId, parentId }).toArray();
-        return res.status(200).json(filesList);
-      }
-      // pagination options
-      const { page } = req.query;
+      const parentId = new ObjectID(parent);
+      const { page } = req.query ? req.query : 0;
       const pageNum = parseInt(page, 10);
-      if ((page) && (pageNum < 20)) {
-        // const filesList = await files.find({ userId }).skip(pageNum).limit(20).toArray();
-        const filesList = await files.aggregate([
-          { $match: { userId } },
-          {
-            $facet: {
-              data: [
-                { $skip: pageNum },
-                { $limit: 20 },
-              ],
-            },
-          },
-        ]).toArray();
-        return res.status(200).json(filesList);
-      }
-      // All files
-      const filesList = await files.find({ userId }).toArray();
+      const filesList = await files.find({ userId, parentId }).skip(pageNum).limit(20).toArray();
+      // const filesList = await files.aggregate([
+      //   { $match: { userId, parentId } },
+      //   {
+      //     $facet: {
+      //       data: [
+      //         { $skip: pageNum },
+      //         { $limit: 20 },
+      //       ],
+      //     },
+      //   },
+      // ]).toArray();
       if (filesList) {
         return res.status(200).json(filesList);
       }
