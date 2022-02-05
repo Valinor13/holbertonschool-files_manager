@@ -40,12 +40,13 @@ class FilesController {
             return res.status(400).json({ error: 'Parent is not a folder' });
           }
         }
+        console.log('passed error checks');
         const newFile = {
           userId,
           name,
           type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
-          parentId: (req.body.parentId ? pId : 0),
+          parentId: (req.body.parentId ? pId : new ObjectID(0)),
         };
         if (type === 'folder') {
           res.status(201).json(newFile);
