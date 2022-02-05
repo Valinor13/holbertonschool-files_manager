@@ -68,42 +68,6 @@ class FilesController {
     (async () => {
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
-      const redi = await Redis.get(token);
-      if (redi) {
-        const userId = new ObjectID(redi);
-        const _id = new ObjectID(req.params.id);
-        const file = await files.findOne({ _id, userId });
-        if (file) {
-          return res.status(200).json(file);
-        }
-        return res.status(404).json({ error: 'Not found' });
-      }
-      return res.status(401).json({ error: 'Unauthorized' });
-    })();
-  }
-
-  static getIndex(req, res) {
-    (async () => {
-      const header = req.headers['x-token'];
-      const token = `auth_${header}`;
-      const redi = await Redis.get(token);
-      if (redi) {
-        const userId = new ObjectID(redi);
-        const parentId = req.query.parentId ? new ObjectID(req.query.parentId) : 0;
-        const page = req.query.page ? parseInt(req.query.page, 10) : 0;
-        const cP = await files.find({
-          userId, parentId,
-        }).skip(page * 20).limit(20).toArray();
-        return res.status(200).send(cP);
-      }
-      return res.status(401).json({ error: 'Unauthorized' });
-    })();
-  }
-
-  static getShow(req, res) {
-    (async () => {
-      const header = req.headers['x-token'];
-      const token = `auth_${header}`;
       const user = await Redis.get(token);
       if (user) {
         const userId = new ObjectID(user);
