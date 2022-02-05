@@ -98,6 +98,7 @@ class FilesController {
         }).skip(page * ps).limit(ps).toArray((err, results) => {
           aggregate.push(results);
         });
+        console.log(cP);
         return res.status(200).send(cP);
       }
       return res.status(401).json({ error: 'Unauthorized' });
