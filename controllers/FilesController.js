@@ -102,14 +102,15 @@ class FilesController {
       }
       // pagination options
       const { page } = req.query;
-      if ((page) && (page < 20)) {
-        // const filesList = await files.find({ userId }).skip(page).limit(20).toArray();
+      const pageNum = parseInt(page, 10);
+      if ((page) && (pageNum < 20)) {
+        // const filesList = await files.find({ userId }).skip(pageNum).limit(20).toArray();
         const filesList = await files.aggregate([
           { $match: { userId } },
           {
             $facet: {
               data: [
-                { $skip: page },
+                { $skip: pageNum },
                 { $limit: 20 },
               ],
             },
