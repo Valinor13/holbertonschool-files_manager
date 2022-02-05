@@ -9,6 +9,7 @@ class FilesController {
   static postUpload(req, res) {
     (async () => {
       let decodedData;
+      let pId;
       const { name, type, data } = req.body;
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
@@ -17,30 +18,26 @@ class FilesController {
         const userId = new ObjectID(redi);
         const typeList = ['folder', 'file', 'image'];
         if (!name) {
-          res.status(400).json({ error: 'Missing name' });
+          return res.status(400).json({ error: 'Missing name' });
         }
         if ((!type) || (typeList.includes(type) === false)) {
-          res.status(400).json({ error: 'Missing type' });
+          return res.status(400).json({ error: 'Missing type' });
         }
         if ((!data) && (type !== 'folder')) {
-          res.status(400).json({ error: 'Missing data' });
-        } else if ((data) && ((type === 'file' || type === 'image'))) {
+          return res.status(400).json({ error: 'Missing data' });
+        }
+        if ((data) && ((type === 'file' || type === 'image'))) {
           const buff = Buffer.from(data, 'base64');
           decodedData = buff.toString('utf-8');
         }
-        if (req.body.parentID) {
-          const file = await files.findOne({ _id: req.body.parentID });
-          try {
-            if (file._id === userId) {
-              res.status(400).json({ error: 'Parent not found' });
-            }
-          } catch (e) {
-            res.status(400).json({ error: 'Parent not found' });
+        if (req.body.parentId) {
+          pId = new ObjectID(req.body.parentId);
+          const file = await files.findOne({ _id: pId });
+          if ((!file) || (file._id === redi)) {
+            return res.status(400).json({ error: 'Parent not found' });
           }
-          if (file._id === req.body.parentID) {
-            if (file.type !== 'folder') {
-              res.status(400).json({ error: 'Parent is not a folder' });
-            }
+          if (file.type !== 'folder') {
+            return res.status(400).json({ error: 'Parent is not a folder' });
           }
         }
         const newFile = {
@@ -48,25 +45,24 @@ class FilesController {
           name,
           type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
-          parentId: (req.body.parentID ? req.body.parentID : 0),
+          parentId: (req.body.parentId ? pId : 0),
         };
         if (type === 'folder') {
           await files.insertOne(newFile);
-          res.status(201).json(newFile);
-        } else {
-          const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
-          fs.mkdir(dir, { recursive: true }, () => {
-            fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
-              newFile.localPath = dir;
-            });
-          });
-          res.status(201).json(newFile);
-          await files.insertOne(newFile);
+          return res.status(201).json(newFile);
         }
+        const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
+        fs.mkdir(dir, { recursive: true }, () => {
+          fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
+            newFile.localPath = dir;
+          });
+        });
+        await files.insertOne(newFile);
+        res.status(201).json(newFile);
       } else {
-        res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: 'Unauthorized' });
       }
-      res.end();
+      return res.end();
     })();
   }
 }
