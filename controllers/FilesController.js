@@ -91,11 +91,9 @@ class FilesController {
         const userId = new ObjectID(redi);
         const parentId = req.query.parentId ? new ObjectID(req.query.parentId) : 0;
         const page = req.query.page ? parseInt(req.query.page, 10) : 0;
-        const ps = 20;
         const cP = await files.find({
           userId, parentId,
-        }).skip(page * ps).limit(ps);
-        console.log(cP);
+        }).skip(page * 20).limit(20).toArray();
         return res.status(200).send(cP);
       }
       return res.status(401).json({ error: 'Unauthorized' });
