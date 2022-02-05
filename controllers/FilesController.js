@@ -46,7 +46,7 @@ class FilesController {
           name,
           type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
-          parentId: (req.body.parentId ? pId : new ObjectID(0)),
+          parentId: (req.body.parentId ? pId : 0),
         };
         if (type === 'folder') {
           await files.insertOne(newFile);
