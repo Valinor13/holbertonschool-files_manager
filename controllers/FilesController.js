@@ -93,7 +93,7 @@ class FilesController {
         const page = req.query.page || 0;
         const pageSize = 20;
         const cP = await files.find({ userId, parentId }).skip(page).limit(pageSize);
-        return res.status(200).send(cP);
+        return res.status(200).send(JSON.stringify(cP));
       }
       return res.status(401).json({ error: 'Unauthorized' });
     })();
