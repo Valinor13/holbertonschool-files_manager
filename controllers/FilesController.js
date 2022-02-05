@@ -29,13 +29,18 @@ class FilesController {
           decodedData = buff.toString('utf-8');
         }
         if (req.body.parentID) {
-          const file = await files.findOne({ parentID: req.body.parentID });
-          if (file) {
+          const file = await files.findOne({ _id: req.body.parentID });
+          try {
+            if (file._id === userId) {
+              res.status(400).json({ error: 'Parent not found' });
+            }
+          } catch (e) {
+            res.status(400).json({ error: 'Parent not found' });
+          }
+          if (file._id === req.body.parentID) {
             if (file.type !== 'folder') {
               res.status(400).json({ error: 'Parent is not a folder' });
             }
-          } else {
-            res.status(400).json({ error: 'Parent not found' });
           }
         }
         const newFile = {
