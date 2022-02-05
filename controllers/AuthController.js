@@ -14,22 +14,18 @@ class AuthController {
       const [email, password] = decodedHeader.split(':');
       if (!password) {
         res.status(401).json({ error: 'Unauthorized' });
-      } else {
-        const user = await users.findOne({ email, password: sha1(password) });
-        if (user) {
-          const newId = uuid();
-          try {
-            const key = `auth_${newId}`;
-            await Redis.set(key, user._id.toString(), 86400);
-          } catch (e) {
-            console.error(e);
-          }
-          res.status(200).json({ token: newId });
-        } else {
-          res.status(401).json({ error: 'Unauthorized' });
-        }
+        return res.end();
       }
-      res.end();
+      const user = await users.findOne({ email, password: sha1(password) });
+      if (user) {
+        const newId = uuid();
+        const key = `auth_${newId}`;
+        await Redis.set(key, user._id.toString(), 86400);
+        res.status(200).json({ token: newId });
+        return res.end();
+      }
+      res.status(401).json({ error: 'Unauthorized' });
+      return res.end();
     })();
   }
 
@@ -38,16 +34,12 @@ class AuthController {
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
       if (await Redis.get(token)) {
-        try {
-          await Redis.del(token);
-          res.sendStatus(204);
-        } catch (e) {
-          console.error(e);
-        }
-      } else {
-        res.status(401).json({ error: 'Unauthorized' });
+        await Redis.del(token);
+        res.sendStatus(204);
+        return res.end();
       }
-      res.end();
+      res.status(401).json({ error: 'Unauthorized' });
+      return res.end();
     })();
   }
 }

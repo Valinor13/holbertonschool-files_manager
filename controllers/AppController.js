@@ -5,10 +5,10 @@ class AppController {
   static getStatus(req, res) {
     if ((Redis.isAlive() === true) && (Db.isAlive() === true)) {
       res.status(200).json({ redis: true, db: true });
-    } else {
-      res.status(400).send('Redis and MongoDB not connected');
+      return res.end();
     }
-    res.end();
+    res.status(400).send('Redis and MongoDB not connected');
+    return res.end();
   }
 
   static getStats(req, res) {
@@ -16,7 +16,7 @@ class AppController {
       const users = await Db.nbUsers();
       const files = await Db.nbFiles();
       res.status(200).json({ users, files });
-      res.end();
+      return res.end();
     })();
   }
 }
