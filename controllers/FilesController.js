@@ -9,6 +9,7 @@ class FilesController {
   static postUpload(req, res) {
     (async () => {
       let decodedData;
+      let pId;
       const { name, type, data } = req.body;
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
@@ -29,12 +30,11 @@ class FilesController {
           decodedData = buff.toString('utf-8');
         }
         if (req.body.parentId) {
-          const file = await files.findOne({ _id: req.body.parentId });
-          console.log(file);
+          pId = new ObjectID(req.body.parentId);
+          const file = await files.findOne({ _id: pId });
           if ((!file) || (file._id === redi)) {
             res.status(400).json({ error: 'Parent not found' });
           }
-          console.log(file);
           if (file.type !== 'folder') {
             res.status(400).json({ error: 'Parent is not a folder' });
           }
@@ -44,7 +44,7 @@ class FilesController {
           name,
           type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
-          parentId: (req.body.parentId ? req.body.parentId : 0),
+          parentId: (req.body.parentId ? pId : 0),
         };
         if (type === 'folder') {
           await files.insertOne(newFile);
