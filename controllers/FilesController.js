@@ -30,9 +30,11 @@ class FilesController {
         }
         if (req.body.parentId) {
           const file = await files.findOne({ _id: req.body.parentId });
-          if ((file === null) || (file._id === redi)) {
+          console.log(file);
+          if ((!file) || (file._id === redi)) {
             res.status(400).json({ error: 'Parent not found' });
           }
+          console.log(file);
           if (file.type !== 'folder') {
             res.status(400).json({ error: 'Parent is not a folder' });
           }
