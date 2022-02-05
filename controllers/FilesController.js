@@ -90,7 +90,7 @@ class FilesController {
       if (redi) {
         const userId = new ObjectID(redi);
         const parentId = req.query.parentId ? new ObjectID(req.query.parentId) : 0;
-        const page = req.query.page || 0;
+        const page = req.query.page ? parseInt(req.query.page, 10) : 0;
         const ps = 20;
         const aggregate = [];
         const cP = await files.find({ userId, parentId }).skip(page).limit(ps).toArray((e, re) => {
