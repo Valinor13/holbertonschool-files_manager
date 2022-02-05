@@ -82,7 +82,7 @@ class FilesController {
         const _id = new ObjectID(req.params.id);
         console.log(userId);
         console.log(_id);
-        const file = files.findOne({ _id, userId });
+        const file = files.findOne({ _id });
         if (file) {
           res.status(200).json(file);
           return res.end();
