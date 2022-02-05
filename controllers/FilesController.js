@@ -18,14 +18,15 @@ class FilesController {
         const userId = new ObjectID(redi);
         const typeList = ['folder', 'file', 'image'];
         if (!name) {
-          res.status(400).json({ error: 'Missing name' });
+          return res.status(400).json({ error: 'Missing name' });
         }
         if ((!type) || (typeList.includes(type) === false)) {
-          res.status(400).json({ error: 'Missing type' });
+          return res.status(400).json({ error: 'Missing type' });
         }
         if ((!data) && (type !== 'folder')) {
-          res.status(400).json({ error: 'Missing data' });
-        } else if ((data) && ((type === 'file' || type === 'image'))) {
+          return res.status(400).json({ error: 'Missing data' });
+        }
+        if ((data) && ((type === 'file' || type === 'image'))) {
           const buff = Buffer.from(data, 'base64');
           decodedData = buff.toString('utf-8');
         }
@@ -33,10 +34,10 @@ class FilesController {
           pId = new ObjectID(req.body.parentId);
           const file = await files.findOne({ _id: pId });
           if ((!file) || (file._id === redi)) {
-            res.status(400).json({ error: 'Parent not found' });
+            return res.status(400).json({ error: 'Parent not found' });
           }
           if (file.type !== 'folder') {
-            res.status(400).json({ error: 'Parent is not a folder' });
+            return res.status(400).json({ error: 'Parent is not a folder' });
           }
         }
         const newFile = {
@@ -47,8 +48,8 @@ class FilesController {
           parentId: (req.body.parentId ? pId : 0),
         };
         if (type === 'folder') {
-          await files.insertOne(newFile);
           res.status(201).json(newFile);
+          await files.insertOne(newFile);
         } else {
           const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
           fs.mkdir(dir, { recursive: true }, () => {
@@ -60,9 +61,9 @@ class FilesController {
           await files.insertOne(newFile);
         }
       } else {
-        res.status(401).json({ error: 'Unauthorized' });
+        return res.status(401).json({ error: 'Unauthorized' });
       }
-      res.end();
+      return res.end();
     })();
   }
 }
