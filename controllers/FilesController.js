@@ -65,6 +65,67 @@ class FilesController {
       return res.end();
     })();
   }
+
+  static getShow(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const user = await Redis.get(token);
+      if (user) {
+        const userId = new ObjectID(user);
+        const fileId = new ObjectID(req.params.id);
+        const file = await files.findOne({ _id: fileId, userId });
+        if (!file) {
+          return res.status(404).json({ error: 'Not found' });
+        }
+        return res.status(200).json(file);
+      }
+      return res.status(401).json({ error: 'Unauthorized' });
+    })();
+  }
+
+  static getIndex(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const user = await Redis.get(token);
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const userId = new ObjectID(user);
+      // parentId options
+      const parent = (req.query.parentId ? req.query.parentId : 0);
+      if (parent) {
+        const parentId = new ObjectID(parent);
+        const filesList = await files.find({ userId, parentId }).toArray();
+        return res.status(200).json(filesList);
+      }
+      // pagination options
+      const { page } = req.query;
+      const pageNum = parseInt(page, 10);
+      if ((page) && (pageNum < 20)) {
+        // const filesList = await files.find({ userId }).skip(pageNum).limit(20).toArray();
+        const filesList = await files.aggregate([
+          { $match: { userId } },
+          {
+            $facet: {
+              data: [
+                { $skip: pageNum },
+                { $limit: 20 },
+              ],
+            },
+          },
+        ]).toArray();
+        return res.status(200).json(filesList);
+      }
+      // All files
+      const filesList = await files.find({ userId }).toArray();
+      if (filesList) {
+        return res.status(200).json(filesList);
+      }
+      return res.status(404).json({ error: 'Not found' });
+    })();
+  }
 }
 
 module.exports = FilesController;
