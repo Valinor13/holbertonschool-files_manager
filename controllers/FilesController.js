@@ -93,23 +93,22 @@ class FilesController {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const userId = new ObjectID(user);
-      const parent = (req.query.parentId ? req.query.parentId : 0);
-      const parentId = new ObjectID(parent);
-      const { page } = req.query ? req.query : 0;
+      const parentId = (req.query.parentId ? new ObjectID(req.query.parentId) : 0);
+      const page = req.query.page ? req.query.page : 0;
       const pageNum = parseInt(page, 10);
-      // const filesList = await files.find({ userId, parentId
-      // }).skip(pageNum * 20).limit(20).toArray();
-      const filesList = await files.aggregate([
-        { $match: { userId, parentId } },
-        {
-          $facet: {
-            data: [
-              { $skip: pageNum * 20 },
-              { $limit: 20 },
-            ],
-          },
-        },
-      ]).toArray();
+      const filesList = await files.find({ userId, parentId })
+        .skip(pageNum * 20).limit(20).toArray();
+      // const filesList = await files.aggregate([
+      //   { $match: { userId, parentId } },
+      //   {
+      //     $facet: {
+      //       data: [
+      //         { $skip: pageNum * 20 },
+      //         { $limit: 20 },
+      //       ],
+      //     },
+      //   },
+      // ]).toArray();
       if (filesList) {
         return res.status(200).json(filesList);
       }
