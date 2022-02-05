@@ -45,7 +45,7 @@ class AuthController {
           console.error(e);
         }
       } else {
-        res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
+        res.status(401).json({ error: 'Unauthorized' });
       }
       res.end();
     })();

@@ -3,24 +3,25 @@ const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
 const Redis = require('../utils/redis');
 
-const db = dbClient.db.collection('users');
+const users = dbClient.db.collection('users');
 
 class UsersController {
   static postNew(req, res) {
     (async () => {
-      if (!req.body.email) {
-        res.status(400).send(JSON.stringify({ error: 'Missing email' }));
+      const { email, password } = req.body;
+      if (!email) {
+        res.status(400).json({ error: 'Missing email' });
       }
-      if (!req.body.password) {
-        res.status(400).send(JSON.stringify({ error: 'Missing password' }));
+      if (!password) {
+        res.status(400).json({ error: 'Missing password' });
       }
-      if (await db.findOne({ email: req.body.email })) {
-        res.status(400).send(JSON.stringify({ error: 'Already exist' }));
+      if (await users.findOne({ email })) {
+        res.status(400).json({ error: 'Already exist' });
       } else {
-        const hashPw = sha1(req.body.password);
-        const doc = { email: req.body.email, password: hashPw };
-        const result = await db.insertOne(doc);
-        res.status(201).send(JSON.stringify({ id: result.insertedId, email: req.body.email }));
+        const hashPw = sha1(password);
+        const doc = { email, password: hashPw };
+        const result = await users.insertOne(doc);
+        res.status(201).json({ id: result.insertedId, email });
       }
       res.end();
     })();
@@ -33,10 +34,10 @@ class UsersController {
       const redi = await Redis.get(token);
       if (redi) {
         const userId = new ObjectID(redi);
-        const user = await db.findOne({ _id: userId });
-        res.send(JSON.stringify({ id: redi, email: user.email }));
+        const user = await users.findOne({ _id: userId });
+        res.json({ id: redi, email: user.email });
       } else {
-        res.status(401).send(JSON.stringify({ error: 'Unauthorized' }));
+        res.status(401).json({ error: 'Unauthorized' });
       }
       res.end();
     })();
