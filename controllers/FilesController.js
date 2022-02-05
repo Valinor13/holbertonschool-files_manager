@@ -88,26 +88,26 @@ class FilesController {
     (async () => {
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
-      const userId = await Redis.get(token);
-      if (userId) {
-        const id = new ObjectID(userId);
+      const user = await Redis.get(token);
+      if (user) {
+        const userId = new ObjectID(user);
         // parentId options
-        const parentId = (req.query.parentId ? req.query.parentId : 0);
-        if (parentId) {
-          const parent = new ObjectID(parentId);
-          const filesList = await files.find({ userId: id, parentId: parent }).toArray();
+        const parent = (req.query.parentId ? req.query.parentId : 0);
+        if (parent) {
+          const parentId = new ObjectID(parent);
+          const filesList = await files.find({ userId, parentId }).toArray();
           return res.status(200).json(filesList);
         }
         // pages options
         const pages = req.query.page;
         if ((pages) && (pages < 20)) {
-          const filesList = await files.find({ userId: id })
+          const filesList = await files.find({ userId });
           return res.status(200).json(filesList);
         }
         // All files
-        const fileArray = await files.find({ userId: id }).toArray();
+        const fileArray = await files.find({ userId }).toArray();
         if (fileArray) {
-          return res.status(200).json(filesList);
+          return res.status(200).json(fileArray);
         }
         return res.status(400).json({ error: 'Not found' });
       }
