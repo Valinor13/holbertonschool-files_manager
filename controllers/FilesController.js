@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { v4: uuid } = require('uuid');
 const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
 const Redis = require('../utils/redis');
@@ -57,8 +58,9 @@ class FilesController {
         }
         const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
         fs.mkdir(dir, { recursive: true }, () => {
-          fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
-            newFile.localPath = dir;
+          const fileName = `${dir}/${uuid()}`;
+          fs.writeFile(fileName, decodedData, () => {
+            newFile.localPath = fileName;
           });
         });
         await files.insertOne(newFile);
@@ -175,6 +177,35 @@ class FilesController {
       file.parentId.toString();
       delete file._id;
       return res.status(200).json(file);
+    })();
+  }
+
+  static getFile(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const user = await Redis.get(token);
+      const _id = new ObjectID(req.params.id);
+      const file = await files.findOne({ _id });
+      if (!file) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      if (user) {
+        if (file.userId.toString() !== user.toString() && file.isPublic === false) {
+          return res.status(404).json({ error: 'Not found' });
+        }
+      } else if (file.isPublic === false) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      if (file.type === 'folder') {
+        return res.status(400).json({ error: 'A folder doesn\'t have content' });
+      }
+      fs.access(file.localPath, (err) => {
+        if (err) {
+          res.status(404).json({ error: 'Not found' });
+        }
+      });
+      return fs.readFile(`${file.localPath}`, (e, data) => res.status(200).end(data));
     })();
   }
 }
