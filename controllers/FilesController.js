@@ -198,13 +198,12 @@ class FilesController {
       if (file.type === 'folder') {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
       }
-      console.log(file.localPath);
       if (!file.localPath) {
         return res.status(404).json({ error: 'Not found' });
       }
-      const mimeType = mime.extension(file.localPath);
-      console.log(mimeType);
-      await fs.readFile(`${file.localPath}.${mimeType}`, (e, data) => res.status(200).write(data));
+      const mimeType = mime.lookup(file.name);
+      const ext = mime.extension(mimeType);
+      await fs.readFile(`${file.localPath}.${ext}`, (e, data) => res.status(200).write(data));
       return res.end();
     })();
   }
