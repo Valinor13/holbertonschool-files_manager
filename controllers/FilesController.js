@@ -97,14 +97,7 @@ class FilesController {
       const pageNum = (parseInt(page, 10) * pageSize);
       const filesList = await files.find({ userId, parentId })
         .skip(pageNum).limit(pageSize).toArray();
-      for (const doc in filesList) {
-        if ({}.hasOwnProperty.call(filesList, doc)) {
-          doc.userId.toString();
-          doc.parentId.toString();
-          doc.id = doc._id.toString();
-          delete doc._id;
-        }
-      }
+      console.log(filesList);
       // const filesList = await files.aggregate([
       //   { $match: { userId, parentId } },
       //   {
@@ -115,6 +108,15 @@ class FilesController {
       //   },
       // ]).toArray();
       if (filesList) {
+        for (const doc in filesList) {
+          if ({}.hasOwnProperty.call(filesList, doc)) {
+            doc.userId.toString();
+            doc.parentId.toString();
+            doc.id = doc._id.toString();
+            delete doc._id;
+          }
+        }
+        console.log(filesList);
         return res.status(200).json(filesList);
       }
       return res.status(404).json({ error: 'Not found' });
