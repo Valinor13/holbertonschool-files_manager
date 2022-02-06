@@ -200,12 +200,11 @@ class FilesController {
       if (!file.localPath) {
         return res.status(404).json({ error: 'Not found' });
       }
-      const mimeType = mime.lookup(file.name);
-      let ext = mime.extension(mimeType);
-      if (!ext) {
-        ext = 'txt';
+      let mimeType = mime.lookup(file.name);
+      if (!mimeType) {
+        mimeType = 'text/plain';
       }
-      await fs.readFile(`${file.localPath}`, 'utf-8', (e, data) => res.status(200).write(data));
+      return fs.readFile(`${file.localPath}`, 'utf-8', (e, data) => res.status(200).write(data));
     })();
   }
 }
