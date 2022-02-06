@@ -142,16 +142,16 @@ class FilesController {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const userId = new ObjectID(user);
-      const _id = new ObjectID(req.params.id);
-      const file = await files.findOne({ _id, userId });
+      const fileId = new ObjectID(req.params.id);
+      const file = await files.findOne({ _id: fileId, userId });
       if (!file) {
         return res.status(404).json({ error: 'Not found' });
       }
-      await files.updateOne({ _id, userId }, { $set: { isPublic: true } });
-      file.userId.toString();
-      file.parentId.toString();
+      await files.updateOne({ _id: fileId }, { $set: { isPublic: true } });
       file.id = file._id.toString();
       file.isPublic = true;
+      file.userId.toString();
+      file.parentId.toString();
       delete file._id;
       return res.status(200).json(file);
     })();
@@ -166,16 +166,16 @@ class FilesController {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const userId = new ObjectID(user);
-      const _id = new ObjectID(req.params.id);
-      const file = await files.findOne({ _id, userId });
+      const fileId = new ObjectID(req.params.id);
+      const file = await files.findOne({ _id: fileId, userId });
       if (!file) {
         return res.status(404).json({ error: 'Not found' });
       }
-      await files.updateOne({ _id, userId }, { $set: { isPublic: false } });
-      file.userId.toString();
-      file.parentId.toString();
+      await files.updateOne({ _id: fileId }, { $set: { isPublic: false } });
       file.id = file._id.toString();
       file.isPublic = false;
+      file.userId.toString();
+      file.parentId.toString();
       delete file._id;
       return res.status(200).json(file);
     })();
