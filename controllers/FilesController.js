@@ -186,13 +186,12 @@ class FilesController {
       const header = req.headers['x-token'];
       const token = `auth_${header}`;
       const user = await Redis.get(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      const userId = new ObjectID(user);
       const _id = new ObjectID(req.params.id);
-      const file = await files.findOne({ _id, userId });
-      if ((!file) || (file.isPublic === false)) {
+      const file = await files.findOne({ _id });
+      if (!file) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      if (file.userId !== user && file.isPublic === false) {
         return res.status(404).json({ error: 'Not found' });
       }
       if (file.type === 'folder') {
