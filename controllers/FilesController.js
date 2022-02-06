@@ -1,4 +1,6 @@
 const fs = require('fs');
+const mime = require('mime-types');
+const { v4: uuid } = require('uuid');
 const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
 const Redis = require('../utils/redis');
@@ -57,8 +59,9 @@ class FilesController {
         }
         const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
         fs.mkdir(dir, { recursive: true }, () => {
-          fs.writeFile(`${dir}/${token.slice(5)}`, decodedData, () => {
-            newFile.localPath = dir;
+          const fileName = `${dir}/${uuid()}`;
+          fs.writeFile(fileName, decodedData, () => {
+            newFile.localPath = fileName;
           });
         });
         await files.insertOne(newFile);
@@ -139,6 +142,7 @@ class FilesController {
         return res.status(401).json({ error: 'Unauthorized' });
       }
       const userId = new ObjectID(user);
+
       const fileId = new ObjectID(req.params.id);
       const file = await files.findOne({ _id: fileId, userId });
       if (!file) {
@@ -175,6 +179,33 @@ class FilesController {
       file.parentId.toString();
       delete file._id;
       return res.status(200).json(file);
+    })();
+  }
+
+  static getFile(req, res) {
+    (async () => {
+      const header = req.headers['x-token'];
+      const token = `auth_${header}`;
+      const user = await Redis.get(token);
+      if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const userId = new ObjectID(user);
+      const _id = new ObjectID(req.params.id);
+      const file = await files.findOne({ _id, userId });
+      if ((!file) || (file.isPublic === false)) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      if (file.type === 'folder') {
+        return res.status(400).json({ error: 'A folder doesn\'t have content' });
+      }
+      if (!file.localPath) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      const mimeType = mime.lookup(file.name);
+      const ext = mime.extension(mimeType);
+      await fs.readFile(`${file.localPath}.${ext}`, (e, data) => res.status(200).write(data));
+      return res.end();
     })();
   }
 }
