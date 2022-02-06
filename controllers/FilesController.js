@@ -200,12 +200,12 @@ class FilesController {
       if (!file.localPath) {
         return res.status(404).json({ error: 'Not found' });
       }
-      let mimeType = mime.lookup(file.name);
-      if (!mimeType) {
-        mimeType = 'plain/text';
-      }
+      const mimeType = mime.lookup(file.name);
       console.log(mimeType);
-      const ext = mime.extension(mimeType);
+      let ext = mime.extension(mimeType);
+      if (!ext) {
+        ext = '.txt';
+      }
       console.log(ext);
       console.log(`${file.localPath}.${ext}`);
       const dataList = [];
