@@ -121,7 +121,6 @@ class FilesController {
             delete filesList[doc]._id;
           }
         }
-        console.log(filesList);
         return res.status(200).json(filesList);
       }
       return res.status(404).json({ error: 'Not found' });
