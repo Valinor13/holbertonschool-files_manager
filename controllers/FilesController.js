@@ -206,7 +206,7 @@ class FilesController {
         ext = 'txt';
       }
       const dataList = [];
-      await fs.readFile(`${file.localPath}.${ext}`, (e, data) => console.log(e, data));
+      await fs.readFile(`${file.localPath}`, (e, data) => console.log(e, data));
       console.log(dataList[0]);
       return res.status(200).write(dataList[0]);
     })();
