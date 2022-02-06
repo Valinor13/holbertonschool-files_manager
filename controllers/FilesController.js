@@ -116,6 +116,7 @@ class FilesController {
       if (filesList) {
         for (const doc in filesList) {
           if ({}.hasOwnProperty.call(filesList, doc)) {
+            console.log(doc.userId);
             doc.userId.toString();
             doc.parentId.toString();
             doc.id = doc._id.toString();
