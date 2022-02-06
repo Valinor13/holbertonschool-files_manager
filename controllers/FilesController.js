@@ -191,7 +191,7 @@ class FilesController {
       if (!file) {
         return res.status(404).json({ error: 'Not found' });
       }
-      if (file.userId !== user && file.isPublic === false) {
+      if (file.userId.toString() !== user.toString() && file.isPublic === false) {
         return res.status(404).json({ error: 'Not found' });
       }
       if (file.type === 'folder') {
