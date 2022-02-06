@@ -93,9 +93,11 @@ class FilesController {
       const userId = new ObjectID(user);
       const parentId = (req.query.parentId ? new ObjectID(req.query.parentId) : 0);
       const page = req.query.page ? req.query.page : 0;
-      const pageNum = parseInt(page, 10);
+      const pageSize = 20;
+      const pageNum = (parseInt(page, 10) * pageSize);
       const filesList = await files.find({ userId, parentId })
-        .skip(pageNum * 20).limit(20).toArray();
+        .skip(pageNum).limit(pageSize).toArray();
+      console.log(filesList);
       // const filesList = await files.aggregate([
       //   { $match: { userId, parentId } },
       //   {
