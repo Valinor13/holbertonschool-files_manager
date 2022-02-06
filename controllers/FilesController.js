@@ -108,14 +108,14 @@ class FilesController {
       //   },
       // ]).toArray();
       if (filesList) {
-        for (const doc in filesList) {
-          if ({}.hasOwnProperty.call(filesList, doc)) {
-            doc.userId.toString();
-            doc.parentId.toString();
-            doc.id = doc._id.toString();
-            delete doc._id;
-          }
-        }
+        // for (const doc in filesList) {
+        //   if ({}.hasOwnProperty.call(filesList, doc)) {
+        //     doc.userId.toString();
+        //     doc.parentId.toString();
+        //     doc.id = doc._id.toString();
+        //     delete doc._id;
+        //   }
+        // }
         console.log(filesList);
         return res.status(200).json(filesList);
       }
