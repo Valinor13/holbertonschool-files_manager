@@ -202,6 +202,7 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
       const mimeType = mime.extension(file.localPath);
+      console.log(mimeType);
       await fs.readFile(`${file.localPath}.${mimeType}`, (e, data) => res.status(200).write(data));
       return res.end();
     })();
