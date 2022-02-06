@@ -191,17 +191,16 @@ class FilesController {
       if (!file) {
         return res.status(404).json({ error: 'Not found' });
       }
-      console.log(file.userId);
-      console.log(user);
       if (file.userId !== user && file.isPublic === false) {
         return res.status(404).json({ error: 'Not found' });
       }
       if (file.type === 'folder') {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
       }
-      if (!file.localPath) {
-        return res.status(404).json({ error: 'Not found' });
-      }
+      console.log(file.localPath);
+      // if (!file.localPath) {
+      //   return res.status(404).json({ error: 'Not found' });
+      // }
       const mimeType = mime.lookup(file.name);
       const ext = mime.extension(mimeType);
       await fs.readFile(`${file.localPath}.${ext}`, (e, data) => res.status(200).write(data));
