@@ -203,8 +203,9 @@ class FilesController {
       // }
       const mimeType = mime.lookup(file.name);
       const ext = mime.extension(mimeType);
-      await fs.readFile(`${file.localPath}.${ext}`, (e, data) => res.status(200).write(data));
-      return res.end();
+      const dataList = [];
+      await fs.readFile(`${file.localPath}.${ext}`, (e, data) => dataList.push(data));
+      return res.status(200).write(dataList[0]);
     })();
   }
 }
