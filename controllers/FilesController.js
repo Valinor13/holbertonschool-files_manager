@@ -205,10 +205,7 @@ class FilesController {
       if (!ext) {
         ext = 'txt';
       }
-      const dataList = [];
-      await fs.readFile(`${file.localPath}`, (e, data) => dataList.push(data));
-      console.log(dataList[0]);
-      return res.status(200).write(dataList[0]);
+      await fs.readFile(`${file.localPath}`, (e, data) => res.status(200).write(data));
     })();
   }
 }
