@@ -199,8 +199,7 @@ class FilesController {
       if (!file.localPath) {
         return res.status(404).json({ error: 'Not found' });
       }
-      fs.readFile(`${file.localPath}`, (e, data) => console.log(data));
-      return res.status(200).write();
+      fs.readFile(`${file.localPath}`, (e, data) => res.status(200).send(data));
     })();
   }
 }
