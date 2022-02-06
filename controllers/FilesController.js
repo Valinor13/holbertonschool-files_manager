@@ -97,7 +97,14 @@ class FilesController {
       const pageNum = (parseInt(page, 10) * pageSize);
       const filesList = await files.find({ userId, parentId })
         .skip(pageNum).limit(pageSize).toArray();
-      console.log(filesList);
+      for (const doc in filesList) {
+        if ({}.hasOwnProperty.call(filesList, doc)) {
+          doc.userId.toString();
+          doc.parentId.toString();
+          doc.id = doc._id.toString();
+          delete doc._id;
+        }
+      }
       // const filesList = await files.aggregate([
       //   { $match: { userId, parentId } },
       //   {
