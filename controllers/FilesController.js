@@ -115,11 +115,10 @@ class FilesController {
       if (filesList) {
         for (const doc in filesList) {
           if ({}.hasOwnProperty.call(filesList, doc)) {
-            console.log(filesList[doc]);
-            doc.userId.toString();
-            doc.parentId.toString();
-            doc.id = doc._id.toString();
-            delete doc._id;
+            filesList[doc].userId.toString();
+            filesList[doc].parentId.toString();
+            filesList[doc].id = filesList[doc]._id.toString();
+            delete filesList[doc]._id;
           }
         }
         console.log(filesList);
