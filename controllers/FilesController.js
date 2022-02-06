@@ -201,7 +201,10 @@ class FilesController {
         return res.status(404).json({ error: 'Not found' });
       }
       const mimeType = mime.lookup(file.name);
+      console.log(mimeType);
       const ext = mime.extension(mimeType);
+      console.log(ext);
+      console.log(`${file.localPath}.${ext}`);
       const dataList = [];
       await fs.readFile(`${file.localPath}.${ext}`, (e, data) => dataList.push(data));
       console.log(dataList[0]);
