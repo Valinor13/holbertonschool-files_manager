@@ -203,10 +203,9 @@ class FilesController {
       const mimeType = mime.lookup(file.name);
       let ext = mime.extension(mimeType);
       if (!ext) {
-        ext = '.txt';
+        ext = 'txt';
       }
       const dataList = [];
-      console.log(`${file.localPath}.${ext}`);
       await fs.readFile(`${file.localPath}.${ext}`, (e, data) => dataList.push(data));
       console.log(dataList[0]);
       return res.status(200).write(dataList[0]);
