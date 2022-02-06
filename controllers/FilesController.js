@@ -1,5 +1,4 @@
 const fs = require('fs');
-const mime = require('mime-types');
 const { v4: uuid } = require('uuid');
 const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
@@ -191,19 +190,22 @@ class FilesController {
       if (!file) {
         return res.status(404).json({ error: 'Not found' });
       }
-      if (file.userId !== user && file.isPublic === false) {
+      if (user) {
+        if (file.userId.toString() !== user.toString() && file.isPublic === false) {
+          return res.status(404).json({ error: 'Not found' });
+        }
+      } else if (file.isPublic === false) {
         return res.status(404).json({ error: 'Not found' });
       }
       if (file.type === 'folder') {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
       }
-      if (!file.localPath) {
-        return res.status(404).json({ error: 'Not found' });
-      }
-      const mimeType = mime.lookup(file.name);
-      const ext = mime.extension(mimeType);
-      await fs.readFile(`${file.localPath}.${ext}`, (e, data) => res.status(200).write(data));
-      return res.end();
+      fs.access(file.localPath, (err) => {
+        if (err) {
+          res.status(404).json({ error: 'Not found' });
+        }
+      });
+      return fs.readFile(`${file.localPath}`, (e, data) => res.status(200).end(data));
     })();
   }
 }
