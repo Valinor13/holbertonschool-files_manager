@@ -95,23 +95,14 @@ class FilesController {
       const page = req.query.page ? req.query.page : 0;
       const pageSize = 20;
       const pageNum = (parseInt(page, 10) * pageSize);
-      let filesList;
+      let query;
       if (parentId === 0) {
-        filesList = await files.find({ userId })
-          .skip(pageNum).limit(pageSize).toArray();
+        query = { userId };
       } else {
-        filesList = await files.find({ userId, parentId })
-          .skip(pageNum).limit(pageSize).toArray();
+        query = { userId, parentId };
       }
-      // const filesList = await files.aggregate([
-      //   { $match: { userId, parentId } },
-      //   {
-      //     [
-      //       { $skip: pageNum * 20 },
-      //       { $limit: 20 }
-      //     ]
-      //   },
-      // ]).toArray();
+      const filesList = await files.find(query)
+        .skip(pageNum).limit(pageSize).toArray();
       if (filesList) {
         for (const doc in filesList) {
           if ({}.hasOwnProperty.call(filesList, doc)) {
