@@ -1,5 +1,4 @@
 const fs = require('fs');
-const mime = require('mime-types');
 const { v4: uuid } = require('uuid');
 const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
@@ -200,11 +199,10 @@ class FilesController {
       if (!file.localPath) {
         return res.status(404).json({ error: 'Not found' });
       }
-      let mimeType = mime.lookup(file.name);
-      if (!mimeType) {
-        mimeType = 'text/plain';
-      }
-      return fs.readFile(`${file.localPath}`, 'utf-8', (e, data) => res.status(200).write(data));
+      const dataList = [];
+      fs.readFile(`${file.localPath}`, (e, data) => dataList.push(data));
+      console.log(dataList[0]);
+      return res.status(200).write(dataList[0]);
     })();
   }
 }
