@@ -205,7 +205,7 @@ class FilesController {
       if (!ext) {
         ext = 'txt';
       }
-      await fs.readFile(`${file.localPath}`, (e, data) => res.status(200).write(data));
+      await fs.readFile(`${file.localPath}`, (e, data) => res.status(200).send(data));
       return res.end();
     })();
   }
