@@ -58,11 +58,9 @@ class FilesController {
           });
         });
         await files.insertOne(newFile);
-        res.status(201).json(newFile);
-      } else {
-        return res.status(401).json({ error: 'Unauthorized' });
+        return res.status(201).json(newFile);
       }
-      return res.end();
+      return res.status(401).json({ error: 'Unauthorized' });
     })();
   }
 
@@ -95,9 +93,16 @@ class FilesController {
       const userId = new ObjectID(user);
       const parentId = (req.query.parentId ? new ObjectID(req.query.parentId) : 0);
       const page = req.query.page ? req.query.page : 0;
-      const pageNum = parseInt(page, 10);
-      const filesList = await files.find({ userId, parentId })
-        .skip(pageNum * 20).limit(20).toArray();
+      const pageSize = 20;
+      const pageNum = (parseInt(page, 10) * pageSize);
+      let filesList;
+      if (parentId === 0) {
+        filesList = await files.find({ userId })
+          .skip(pageNum).limit(pageSize).toArray();
+      } else {
+        filesList = await files.find({ userId, parentId })
+          .skip(pageNum).limit(pageSize).toArray();
+      }
       // const filesList = await files.aggregate([
       //   { $match: { userId, parentId } },
       //   {
@@ -108,6 +113,14 @@ class FilesController {
       //   },
       // ]).toArray();
       if (filesList) {
+        for (const doc in filesList) {
+          if ({}.hasOwnProperty.call(filesList, doc)) {
+            filesList[doc].userId.toString();
+            filesList[doc].parentId.toString();
+            filesList[doc].id = filesList[doc]._id.toString();
+            delete filesList[doc]._id;
+          }
+        }
         return res.status(200).json(filesList);
       }
       return res.status(404).json({ error: 'Not found' });
