@@ -200,6 +200,7 @@ class FilesController {
       if (file.type === 'folder') {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
       }
+      console.log(file.localPath);
       if (!file.localPath) {
         return res.status(404).json({ error: 'Not found' });
       }
