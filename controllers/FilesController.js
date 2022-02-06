@@ -49,6 +49,10 @@ class FilesController {
         };
         if (type === 'folder') {
           await files.insertOne(newFile);
+          newFile.userId.toString();
+          newFile.parentId.toString();
+          newFile.id = newFile._id.toString();
+          delete newFile._id;
           return res.status(201).json(newFile);
         }
         const dir = process.env.FOLDER_PATH || '/tmp/files_manager';
@@ -58,6 +62,10 @@ class FilesController {
           });
         });
         await files.insertOne(newFile);
+        newFile.userId.toString();
+        newFile.parentId.toString();
+        newFile.id = newFile._id.toString();
+        delete newFile._id;
         return res.status(201).json(newFile);
       }
       return res.status(401).json({ error: 'Unauthorized' });
@@ -76,6 +84,10 @@ class FilesController {
         if (!file) {
           return res.status(404).json({ error: 'Not found' });
         }
+        file.userId.toString();
+        file.parentId.toString();
+        file.id = file._id.toString();
+        delete file._id;
         return res.status(200).json(file);
       }
       return res.status(401).json({ error: 'Unauthorized' });
