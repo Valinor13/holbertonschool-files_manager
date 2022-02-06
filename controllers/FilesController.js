@@ -190,13 +190,12 @@ class FilesController {
       if (!file) {
         return res.status(404).json({ error: 'Not found' });
       }
-      console.log(user);
       if (user) {
-        console.log(file.userId);
-        console.log(user);
         if (file.userId.toString() !== user.toString() && file.isPublic === false) {
           return res.status(404).json({ error: 'Not found' });
         }
+      } else if (file.isPublic === false) {
+        return res.status(404).json({ error: 'Not found' });
       }
       if (file.type === 'folder') {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
