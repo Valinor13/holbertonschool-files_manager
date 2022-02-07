@@ -3,6 +3,7 @@ const { v4: uuid } = require('uuid');
 const { ObjectID } = require('mongodb');
 const dbClient = require('../utils/db');
 const Redis = require('../utils/redis');
+const { addFile, processFile } = require('../worker');
 
 const files = dbClient.db.collection('files');
 
@@ -46,10 +47,16 @@ class FilesController {
           name,
           type,
           isPublic: (req.body.isPublic ? req.body.isPublic : false),
-          parentId: (req.body.parentId ? pId : 0),
+          parentId: pId,
         };
         if (type === 'folder') {
           await files.insertOne(newFile);
+          await addFile(newFile);
+          try {
+            await processFile(newFile.userId, newFile._id);
+          } catch (err) {
+            return res.status(404).json(err);
+          }
           newFile.userId.toString();
           newFile.parentId.toString();
           newFile.id = newFile._id.toString();
@@ -64,6 +71,12 @@ class FilesController {
           });
         });
         await files.insertOne(newFile);
+        await addFile(newFile);
+        try {
+          await processFile(newFile.userId, newFile._id);
+        } catch (err) {
+          return res.status(404).json(err);
+        }
         newFile.userId.toString();
         newFile.parentId.toString();
         newFile.id = newFile._id.toString();
@@ -199,6 +212,22 @@ class FilesController {
       }
       if (file.type === 'folder') {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
+      }
+      if (file.type === 'image') {
+        if (!req.query.size) {
+          return fs.readFile(file.name, (e, data) => {
+            if (e) {
+              res.status(404).json({ error: 'Not found' });
+            }
+            res.status(200).end(data);
+          });
+        }
+        return fs.readFile(`./resources/images/${file.name}_${req.query.size}`, (e, data) => {
+          if (e) {
+            res.status(404).json({ error: 'Not found' });
+          }
+          res.status(200).end(data);
+        });
       }
       fs.access(file.localPath, (err) => {
         if (err) {
