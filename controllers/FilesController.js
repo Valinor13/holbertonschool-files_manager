@@ -214,7 +214,15 @@ class FilesController {
         return res.status(400).json({ error: 'A folder doesn\'t have content' });
       }
       if (file.type === 'image') {
-        return fs.readFile(`resources/images/${file.name}_${req.query.size}`, (e, data) => {
+        if (!req.query.size) {
+          return fs.readFile(file.name, (e, data) => {
+            if (e) {
+              res.status(404).json({ error: 'Not found' });
+            }
+            res.status(200).end(data);
+          });
+        }
+        return fs.readFile(`./resources/images/${file.name}_${req.query.size}`, (e, data) => {
           if (e) {
             res.status(404).json({ error: 'Not found' });
           }
