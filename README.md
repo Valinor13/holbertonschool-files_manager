@@ -13,5 +13,7 @@ npm run start-server
 ```
 
 Contributors:
-[Rachel Lewis](github.com/rlewis11769)
-[Jay Calhoun](github.com/Valinor13)
+<br>
+Rachel Lewis
+<br>
+Jay Calhoun
