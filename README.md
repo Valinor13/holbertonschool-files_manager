@@ -16,4 +16,4 @@ Contributors:
 <br>
 [Rachel Lewis](https://www.github.com/rlewis11769)
 <br>
-[ay Calhoun](https://www.github.com/Valinor13)
+[Jay Calhoun](https://www.github.com/Valinor13)
