@@ -1,4 +1,7 @@
-# Files Manager
+Files Manager
+=============
+
+This project had us build an express API MVC backend connecting to a mongodb with a redis session client. The app creates and stores users in the noSQL db, and then on login stores a session token for up to 24 hour or until logout with the redis client. Due to the use of redis, this app requires a unix environment and therefore will not run correctly in a windowns environment.
 
 ## Instructions
 
@@ -8,3 +11,7 @@
 ```
 npm run start-server
 ```
+
+Contributors:
+[Rachel Lewis](github.com/rlewis11769)
+[Jay Calhoun](github.com/Valinor13)
