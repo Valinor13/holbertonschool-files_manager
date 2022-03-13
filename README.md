@@ -14,6 +14,6 @@ npm run start-server
 
 Contributors:
 <br>
-Rachel Lewis
+[Rachel Lewis](https://www.github.com/rlewis11769)
 <br>
-Jay Calhoun
+[ay Calhoun](https://www.github.com/Valinor13)
